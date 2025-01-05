@@ -78,18 +78,43 @@ const store = createStore<StatisticsData>({
      */
     threeMonthsDayPlan(state) {
       const dailyGoals: Record<string, number> = {};
-      // 获取上一个月的第一天
+      const currentYear = moment(state.currentMonth).year();
       const prevMonthStart = moment(state.currentMonth).subtract(1, "month").startOf("month").dayOfYear();
-      // 获取下一月的最后一天
       const nextMonthEnd = moment(state.currentMonth).add(1, "month").endOf("month").dayOfYear();
-      // 找出之间每一天的周数，然后计算每日目标
-      for (let i = prevMonthStart; i <= nextMonthEnd; i++) {
-        const date = moment().dayOfYear(i);
-        const weekCount = date.week();
-        const number = getGoalOfWeek(state.weeklyPlan, date.format("YYYY"), weekCount);
-        // console.info("dailyGoals", date.format("YYYY-MM-DD"), "weekCount", weekCount, number);
-        dailyGoals[date.format("YYYY-MM-DD")] = Math.floor(number / 7);
+      const endOfYear = moment().endOf("year").dayOfYear();
+    
+      // console.log("prevMonthStart", prevMonthStart, "nextMonthEnd", nextMonthEnd);
+    
+      if (prevMonthStart <= nextMonthEnd) {
+        // 不跨年情况
+        for (let i = prevMonthStart; i <= nextMonthEnd; i++) {
+          const date = moment().dayOfYear(i).year(currentYear);
+          const weekCount = date.week();
+          const number = getGoalOfWeek(state.weeklyPlan, date.format("YYYY"), weekCount);
+          // console.info("dailyGoals", date.format("YYYY-MM-DD"), "weekCount", weekCount, number);
+          dailyGoals[date.format("YYYY-MM-DD")] = Math.floor(number / 7);
+        }
+      } else {
+        // 跨年情况
+        // 处理从 prevMonthStart 到年底的日期
+        for (let i = prevMonthStart; i <= endOfYear; i++) {
+          const date = moment().dayOfYear(i).year(currentYear - 1); // 设置为上一年
+          const weekCount = date.week();
+          const number = getGoalOfWeek(state.weeklyPlan, date.format("YYYY"), weekCount);
+          // console.info("dailyGoals", date.format("YYYY-MM-DD"), "weekCount", weekCount, number);
+          dailyGoals[date.format("YYYY-MM-DD")] = Math.floor(number / 7);
+        }
+    
+        // 处理从年初到 nextMonthEnd 的日期
+        for (let i = 1; i <= nextMonthEnd; i++) {
+          const date = moment().dayOfYear(i).year(currentYear); // 设置为当前年
+          const weekCount = date.week();
+          const number = getGoalOfWeek(state.weeklyPlan, date.format("YYYY"), weekCount);
+          // console.info("dailyGoals", date.format("YYYY-MM-DD"), "weekCount", weekCount, number);
+          dailyGoals[date.format("YYYY-MM-DD")] = Math.floor(number / 7);
+        }
       }
+    
       // console.log("dailyGoals", dailyGoals);
       return dailyGoals;
     },
@@ -139,7 +164,7 @@ const store = createStore<StatisticsData>({
       );
       state.weeklyPlan = { ...assign };
 
-      // console.log("updateWeeklyPlan, state.weeklyPlan is ", state.weeklyPlan.toString());
+      // console.log("updateWeeklyPlan, state.weeklyPlan is ", state.weeklyPlan);
 
 
       DailyStatisticsDataManagerInstance.data.weeklyPlan = state.weeklyPlan;

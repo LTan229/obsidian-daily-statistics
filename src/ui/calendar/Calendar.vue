@@ -24,25 +24,24 @@
   <el-calendar v-model="day">
     <template #date-cell="{ data }">
       <div @dblclick="setNum(data.day)" class="div-container">
-        <div class="flex-centered">
+        <div class="flex-centered" :class="{ 'goal-achieved': isGoalAchieved(data.day) }">
           <p>
             {{ data.date.getDate() }}
           </p>
         </div>
 
-        <div class="flex-centered2">
+        <div class="flex-centered2" :class="{ 'goal-achieved': isGoalAchieved(data.day) }">
           <p>
             {{ dayCount[data.day] || 0 }}
           </p>
-
         </div>
-        <div class="flex-centered3 ">
+        <!-- <div class="flex-centered3 ">
           <p>
             <el-icon v-if="((dayCount[data.day] || 0) > dayPlan[data.day]) && dayPlan[data.day] > 0">
               <Check />
             </el-icon>
           </p>
-        </div>
+        </div> -->
       </div>
 
 
@@ -121,6 +120,9 @@ const confirm = () => {
   ;
 };
 
+const isGoalAchieved = (day: string) => {
+  return dayPlan.value[day] > 0 && (dayCount.value[day] || 0) > dayPlan.value[day];
+};
 
 </script>
 
@@ -231,5 +233,9 @@ https://github.com/yefengr/obsidian-daily-statistics/issues/7
 
 .el-calendar-day > .div-container {
   gap: 5px;
+}
+
+.goal-achieved {
+  color: #67C23A; /* Element Plus 的成功绿色 */
 }
 </style>

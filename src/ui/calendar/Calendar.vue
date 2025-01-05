@@ -126,7 +126,7 @@ const confirm = () => {
 
 
 <style>
-.is-selected {
+.el-calendar-table .is-selected {
   color: #1989fa;
 }
 

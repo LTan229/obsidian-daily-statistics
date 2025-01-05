@@ -159,7 +159,7 @@
             }
           },
           {
-            "id": "8239f335d9bb3d13",
+            "id": "2581dea9c024ed4c",
             "type": "leaf",
             "state": {
               "type": "CalendarView",
@@ -173,7 +173,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 354.5
+    "width": 635.5
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -185,8 +185,9 @@
       "command-palette:打开命令面板": false
     }
   },
-  "active": "8239f335d9bb3d13",
+  "active": "2581dea9c024ed4c",
   "lastOpenFiles": [
+    "daily-statistics.json",
     "未命名 1.md",
     "未命名.md"
   ]

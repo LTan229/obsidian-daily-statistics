@@ -177,6 +177,10 @@ const confirm = () => {
   margin-right: 6px;
 }
 
+/* 以下的样式由网友提供
+https://github.com/yefengr/obsidian-daily-statistics/issues/7
+*/
+
 
 /* Daily Statistics plugin tweaks */
 .el-calendar button:focus,

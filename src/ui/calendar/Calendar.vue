@@ -176,4 +176,56 @@ const confirm = () => {
   margin-left: 6px;
   margin-right: 6px;
 }
+
+
+/* Daily Statistics plugin tweaks */
+.el-calendar button:focus,
+.el-calendar button:hover,
+.el-calendar button {
+  background: none;
+  border: 0;
+  box-shadow: none;
+  line-height: .7;
+  padding: 0;
+}
+
+/* stylelint-disable-next-line */
+.el-calendar-day > .div-container > .flex-centered3,
+.el-button-group::after,
+.el-button-group::before {
+  display: none;
+}
+
+.el-calendar .el-button-group {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0 15px;
+}
+
+.el-calendar-table .el-calendar-day {
+  height: 50px;
+}
+
+.el-calendar-day > .div-container > .flex-centered {
+  font-weight: 600;
+}
+
+.el-calendar__header {
+  display: block;
+}
+
+/* stylelint-disable-next-line */
+.el-calendar__title {
+  font-size: 14px;
+  margin-bottom: 5px;
+}
+
+/* stylelint-disable-next-line */
+.el-calendar-day > .div-container p {
+  font-size: 12px;
+}
+
+.el-calendar-day > .div-container {
+  gap: 5px;
+}
 </style>

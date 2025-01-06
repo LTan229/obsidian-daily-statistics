@@ -85,7 +85,7 @@ const store = createStore<StatisticsData>({
       const nextMonthEnd = moment(state.currentMonth).add(1, "month").endOf("month").dayOfYear();
       const endOfYear = moment().endOf("year").dayOfYear();
 
-      console.log("prevMonthStart", prevMonthStart, "nextMonthEnd", nextMonthEnd);
+      // console.log("prevMonthStart", prevMonthStart, "nextMonthEnd", nextMonthEnd);
 
       if (prevMonthStart <= nextMonthEnd) {
         // 不跨年情况
@@ -108,7 +108,7 @@ const store = createStore<StatisticsData>({
           }
           const weekCount = date.week();
           const number = getGoalOfWeek(state.weeklyPlan, date.format("YYYY"), weekCount);
-          console.info("dailyGoals", date.format("YYYY-MM-DD"), "weekCount", weekCount, number);
+          // console.info("dailyGoals", date.format("YYYY-MM-DD"), "weekCount", weekCount, number);
           dailyGoals[date.format("YYYY-MM-DD")] = Math.floor(number / 7);
         }
 
@@ -117,7 +117,7 @@ const store = createStore<StatisticsData>({
           const date = moment().dayOfYear(i).year(currentYear); // 设置为当前年
           const weekCount = date.week();
           const number = getGoalOfWeek(state.weeklyPlan, date.format("YYYY"), weekCount);
-          console.info("dailyGoals", date.format("YYYY-MM-DD"), "weekCount", weekCount, number);
+          // console.info("dailyGoals", date.format("YYYY-MM-DD"), "weekCount", weekCount, number);
           dailyGoals[date.format("YYYY-MM-DD")] = Math.floor(number / 7);
         }
       }

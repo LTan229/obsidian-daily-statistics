@@ -2,9 +2,7 @@
 
 ## 介绍
 统计每日书写的字数，并展示在日历中。
-
-![img.png](img.png)
-
+![alt text](image.png)
 
 
 ## 功能

@@ -79,12 +79,14 @@ const store = createStore<StatisticsData>({
     threeMonthsDayPlan(state) {
       const dailyGoals: Record<string, number> = {};
       const currentYear = moment(state.currentMonth).year();
+      const currentMonth = moment(state.currentMonth).month();
+
       const prevMonthStart = moment(state.currentMonth).subtract(1, "month").startOf("month").dayOfYear();
       const nextMonthEnd = moment(state.currentMonth).add(1, "month").endOf("month").dayOfYear();
       const endOfYear = moment().endOf("year").dayOfYear();
-    
-      // console.log("prevMonthStart", prevMonthStart, "nextMonthEnd", nextMonthEnd);
-    
+
+      console.log("prevMonthStart", prevMonthStart, "nextMonthEnd", nextMonthEnd);
+
       if (prevMonthStart <= nextMonthEnd) {
         // 不跨年情况
         for (let i = prevMonthStart; i <= nextMonthEnd; i++) {
@@ -98,23 +100,28 @@ const store = createStore<StatisticsData>({
         // 跨年情况
         // 处理从 prevMonthStart 到年底的日期
         for (let i = prevMonthStart; i <= endOfYear; i++) {
-          const date = moment().dayOfYear(i).year(currentYear - 1); // 设置为上一年
+          let date;
+          if (currentMonth == 1) {
+            date = moment().dayOfYear(i).year(currentYear - 1); // 设置为上一年
+          } else {
+            date = moment().dayOfYear(i).year(currentYear); // 设置为当前年
+          }
           const weekCount = date.week();
           const number = getGoalOfWeek(state.weeklyPlan, date.format("YYYY"), weekCount);
-          // console.info("dailyGoals", date.format("YYYY-MM-DD"), "weekCount", weekCount, number);
+          console.info("dailyGoals", date.format("YYYY-MM-DD"), "weekCount", weekCount, number);
           dailyGoals[date.format("YYYY-MM-DD")] = Math.floor(number / 7);
         }
-    
+
         // 处理从年初到 nextMonthEnd 的日期
         for (let i = 1; i <= nextMonthEnd; i++) {
           const date = moment().dayOfYear(i).year(currentYear); // 设置为当前年
           const weekCount = date.week();
           const number = getGoalOfWeek(state.weeklyPlan, date.format("YYYY"), weekCount);
-          // console.info("dailyGoals", date.format("YYYY-MM-DD"), "weekCount", weekCount, number);
+          console.info("dailyGoals", date.format("YYYY-MM-DD"), "weekCount", weekCount, number);
           dailyGoals[date.format("YYYY-MM-DD")] = Math.floor(number / 7);
         }
       }
-    
+
       // console.log("dailyGoals", dailyGoals);
       return dailyGoals;
     },

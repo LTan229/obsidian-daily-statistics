@@ -146,7 +146,7 @@
             }
           },
           {
-            "id": "1e6dfa6954bc3bac",
+            "id": "c95d9eac45d3fd98",
             "type": "leaf",
             "state": {
               "type": "CalendarView",
@@ -172,7 +172,7 @@
       "command-palette:打开命令面板": false
     }
   },
-  "active": "1e6dfa6954bc3bac",
+  "active": "c95d9eac45d3fd98",
   "lastOpenFiles": [
     "未命名 1.md",
     "未命名.md",

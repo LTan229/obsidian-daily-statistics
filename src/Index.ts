@@ -12,6 +12,7 @@ import { CalendarView, Calendar_View } from "@/ui/calendar/CalendarView";
 import { SampleSettingTab } from "@/ui/setting/SampleSettingTab";
 import i18n from "@/lang";
 import moment from "moment/moment";
+import store from "./data/Store";
 
 /**
  * 插件核心类
@@ -189,6 +190,11 @@ export default class DailyStatisticsPlugin extends Plugin {
     }
     Object.assign(data, this.settings);
     await this.saveData(data);
+
+    // 更新 store 中的 enablePlan 状态
+    store.commit("updateEnablePlan", this.settings.enablePlan);
+
+
   }
 
   // 在预览时更新统计字数

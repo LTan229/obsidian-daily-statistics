@@ -87,6 +87,54 @@ input[type='number'] {
   display: flex;
   align-items: center;
   justify-content: center; /* 水平居中 */
-
 }
+
+/* 设置弹窗背景色为 Obsidian 侧栏颜色 */
+.el-dialog {
+  background-color: var(--background-secondary);
+  color: var(--text-normal);
+}
+
+/* 设置弹窗头部和底部的背景色 */
+.el-dialog__header,
+.el-dialog__footer {
+  background-color: var(--background-secondary);
+  color: var(--text-normal);
+}
+
+/* 设置输入框背景色 */
+.el-input-number .el-input__wrapper {
+  background-color: var(--background-primary);
+  color: var(--text-normal);
+}
+
+/* 基础按钮样式 */
+.el-button {
+  --el-button-hover-border-color: transparent;
+  --el-button-hover-bg-color: transparent;
+  --el-button-hover-text-color: var(--text-normal);
+  --el-button-active-color: transparent;
+  --el-button-active-bg-color: transparent;
+  --el-button-active-border-color: transparent;
+  box-shadow: none;
+  border: none;
+  background-color: transparent;
+  color: var(--text-normal);
+  padding: 8px 16px;
+  transition: none;
+  filter: none;
+}
+
+/* 移除按钮悬浮和点击效果 */
+.el-button:hover,
+.el-button:focus,
+.el-button:active {
+  background-color: transparent;
+  border-color: transparent;
+  transform: none;
+  filter: none;
+}
+
+/* 使用 Obsidian 的背景色 */
+
 </style>

@@ -12,7 +12,6 @@ import { CalendarView, Calendar_View } from "@/ui/calendar/CalendarView";
 import { SampleSettingTab } from "@/ui/setting/SampleSettingTab";
 import i18n from "@/lang";
 import moment from "moment/moment";
-import store from "./data/Store";
 
 /**
  * 插件核心类
@@ -24,18 +23,28 @@ export default class DailyStatisticsPlugin extends Plugin {
   calendarView!: CalendarView;
 
   async onload() {
+    
+    await this.loadSettings();
+
+
     // 尽早的设置时间地域
     const locale = i18n.global.locale.value;
     if (locale == "zh_cn") {
-      moment.locale("zh-cn", {
+      moment.updateLocale("zh-cn", {
         week: {
-          dow: 1,
+          /// todo 这里获取不到配置
+          dow: this.settings.weekStart,
+        },
+      });
+    } else {
+      moment.updateLocale("en", {
+        week: {
+          dow: this.settings.weekStart,
         },
       });
     }
 
     const t = i18n.global.t;
-    await this.loadSettings();
 
     DailyStatisticsDataManagerInstance.init(
       this.settings.dataFile,
@@ -190,11 +199,6 @@ export default class DailyStatisticsPlugin extends Plugin {
     }
     Object.assign(data, this.settings);
     await this.saveData(data);
-
-    // 更新 store 中的 enablePlan 状态
-    store.commit("updateEnablePlan", this.settings.enablePlan);
-
-
   }
 
   // 在预览时更新统计字数

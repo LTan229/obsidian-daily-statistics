@@ -16,7 +16,7 @@
     </template>
   </el-dialog>
 
-  <el-calendar v-model="day">
+  <el-calendar v-model="day" :first-day-of-week="weekStart">
     <template #date-cell="{ data }">
       <div @dblclick="setNum(data.day)" class="div-container">
         <div class="flex-centered" :class="{ 'goal-achieved': isGoalAchieved(data.day) }">
@@ -63,6 +63,12 @@ const day = ref(new Date());
 const yearMon = moment(day.value).format("YYYY-MM");
 store.commit("updateMonth", yearMon);
 store.commit("updateDay", moment(day.value).format("YYYY-MM-DD"));
+
+// 周开始
+const weekStart = computed(() => {
+  console.info("weekStart", store.getters.weekStart);
+  return store.getters.weekStart;
+});
 
 
 let currentMonNow = moment(day.value).format("YYYY-MM");

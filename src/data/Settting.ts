@@ -6,4 +6,6 @@ export class DailyStatisticsSettings {
   statisticsWord = false;
   // 开启计划
   enablePlan = true;
+  // 一周开始时间
+  weekStart = 0;
 }

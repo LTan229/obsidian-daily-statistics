@@ -1,4 +1,3 @@
-
 export default {
   // common
   "all": "全部",
@@ -29,7 +28,15 @@ export default {
   ,"statisticsWordExplained":"统计单词而不是字符。请注意，切换该选项之后，当日的统计数据将被重置。"
   ,"enablePlan":"开启计划"
   ,"enablePlanExplained":"开启计划后会在日历下方显示计划进度，当计划完成之后，当日的统计信息会变成绿色。"
-
+  ,"weekStart":"一周开始时间"
+  ,"weekStartExplained":"设置一周的开始时间。"
+  ,"weekStartOptions0":"周日"
+  ,"weekStartOptions1":"周一"
+  ,"weekStartOptions2":"周二"
+  ,"weekStartOptions3":"周三"
+  ,"weekStartOptions4":"周四"
+  ,"weekStartOptions5":"周五"
+  ,"weekStartOptions6":"周六"
 // 状态栏
   , "todaySWordCount": "今日字数："
 

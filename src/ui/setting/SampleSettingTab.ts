@@ -2,6 +2,8 @@ import { App, PluginSettingTab, Setting } from "obsidian";
 import DailyStatisticsPlugin from "@/Index";
 import i18n from "@/lang";
 import { DailyStatisticsDataManagerInstance } from "@/data/StatisticsDataManager";
+import moment from "moment";
+import store from "@/data/Store";
 
 /**
  * 设置页面
@@ -65,6 +67,37 @@ export class SampleSettingTab extends PluginSettingTab {
           .onChange(async (value) => {
             this.plugin.settings.enablePlan = value;
             await this.plugin.saveSettings();
+            store.commit("updateEnablePlan", value);
+          })
+      );
+
+
+
+    new Setting(containerEl)
+      .setName(t("weekStart"))
+      .setDesc(t("weekStartExplained"))
+      .addDropdown((dropdown) =>
+        dropdown
+          .addOption("0", t("weekStartOptions0"))
+          .addOption("1", t("weekStartOptions1")) 
+          .addOption("2", t("weekStartOptions2"))
+          .addOption("3", t("weekStartOptions3"))
+          .addOption("4", t("weekStartOptions4"))
+          .addOption("5", t("weekStartOptions5"))
+          .addOption("6", t("weekStartOptions6"))
+          .setValue(this.plugin.settings.weekStart.toString())
+          .onChange(async (value) => {
+            this.plugin.settings.weekStart = parseInt(value);
+            await this.plugin.saveSettings();
+            store.commit("updateWeekStart", parseInt(value));
+
+            // 更新 moment.js 配置
+            const locale = moment.locale();
+            moment.updateLocale(locale, {
+              week: {
+                dow: parseInt(value),
+              },
+            });
           })
       );
   }

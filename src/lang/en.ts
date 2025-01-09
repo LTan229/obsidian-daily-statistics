@@ -29,6 +29,8 @@ export default {
   "statisticsCatalogExplained": "Set the directory where statistical data is required. If it is empty, the data of the entire database will be counted."
   ,"statisticsWord":"Count words"
   ,"statisticsWordExplained":"Count words instead of characters. Please note that after switching this option, the current day's statistics will be reset."
+  ,"enablePlan":"Enable plan"
+  ,"enablePlanExplained":"Enable plan, then the plan progress will be displayed below the calendar. When the plan is completed, the current day's statistics will turn green."
 
 // 状态栏
   , "todaySWordCount": "Today's word count: "

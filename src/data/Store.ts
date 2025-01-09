@@ -7,10 +7,13 @@ interface StatisticsData {
   // // yyyy-mm
   currentDay: string;
   currentMonth: string;
+  // 开启计划
+  enablePlan: boolean;
   // 每日统计
   dayCounts: Record<string, number>;
   // 周计划
   weeklyPlan: Record<string, number>;
+  
 }
 
 
@@ -32,6 +35,7 @@ const store = createStore<StatisticsData>({
   state: {
     currentDay: "2024-01-01",
     currentMonth: "2024-01",
+    enablePlan: true,
     dayCounts: {},
     weeklyPlan: {}
   },
@@ -43,6 +47,10 @@ const store = createStore<StatisticsData>({
 
     month(state) {
       return state.currentMonth;
+    },
+
+    enablePlan(state) {
+      return state.enablePlan;
     },
 
     // 返回当前月份与前后各一个月的数据
@@ -156,6 +164,10 @@ const store = createStore<StatisticsData>({
 
     updateMonth(state, month: string) {
       state.currentMonth = month;
+    },
+
+    updateEnablePlan(state, enablePlan: boolean) {
+      state.enablePlan = enablePlan;
     },
 
     updateStatisticsData(state, dayCounts: Record<string, number>) {

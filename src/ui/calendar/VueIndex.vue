@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import store from "@/data/Store";
+import { computed, ref, watch } from "vue";
+
 
 import { ElConfigProvider } from "element-plus";
 import Progress from "@/ui/calendar/Progress.vue";
@@ -31,6 +34,16 @@ onBeforeUnmount(() => {
   observer.disconnect();
   // 执行一些清理工作，比如取消网络请求、移除事件监听器等
 });
+
+
+// 是否开启计划
+const enablePlan = computed(() => {
+  return store.getters.enablePlan;
+});
+
+
+
+
 </script>
 
 <template>
@@ -38,7 +51,7 @@ onBeforeUnmount(() => {
   <el-config-provider>
 
     <Calendar />
-    <Progress />
+    <Progress v-if="enablePlan" />
 
   </el-config-provider>
 </template>

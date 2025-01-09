@@ -4,4 +4,6 @@ export class DailyStatisticsSettings {
   statisticsFolder = "";
   // 统计单词，用于英文场景
   statisticsWord = false;
+  // 开启计划
+  enablePlan = true;
 }

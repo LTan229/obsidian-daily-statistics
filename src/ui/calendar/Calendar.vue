@@ -120,8 +120,13 @@ const confirm = () => {
   ;
 };
 
+// 是否开启计划
+const enablePlan = computed(() => {
+  return store.getters.enablePlan;
+});
+
 const isGoalAchieved = (day: string) => {
-  return dayPlan.value[day] > 0 && (dayCount.value[day] || 0) > dayPlan.value[day];
+  return enablePlan.value && dayPlan.value[day] > 0 && (dayCount.value[day] || 0) > dayPlan.value[day];
 };
 
 </script>

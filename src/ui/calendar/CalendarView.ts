@@ -57,6 +57,8 @@ export class CalendarView extends ItemView {
 
   async onOpen() {
 
+    const enablePlan = this.plugin.settings.enablePlan;
+    store.commit("updateEnablePlan", enablePlan);
 
     // 初始化数据
     const yearMon = moment().format("YYYY-MM");

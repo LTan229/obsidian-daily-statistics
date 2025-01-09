@@ -27,6 +27,8 @@ export default {
   , "statisticsCatalogExplained": "设置需要统计数据的目录，如果为空，则统计全库的数据。"
   ,"statisticsWord":"统计单词"
   ,"statisticsWordExplained":"统计单词而不是字符。请注意，切换该选项之后，当日的统计数据将被重置。"
+  ,"enablePlan":"开启计划"
+  ,"enablePlanExplained":"开启计划后会在日历下方显示计划进度，当计划完成之后，当日的统计信息会变成绿色。"
 
 // 状态栏
   , "todaySWordCount": "今日字数："

@@ -54,5 +54,19 @@ export class SampleSettingTab extends PluginSettingTab {
             DailyStatisticsDataManagerInstance.resetCurrentDayStatistics()
           })
       );
+
+
+    new Setting(containerEl)
+      .setName(t("enablePlan"))
+      .setDesc(t("enablePlanExplained"))
+      .addToggle((component) =>
+        component
+          .setValue(this.plugin.settings.enablePlan)
+          .onChange(async (value) => {
+            this.plugin.settings.enablePlan = value;
+            await this.plugin.saveSettings();
+          })
+      );
   }
+  
 }

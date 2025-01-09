@@ -1,11 +1,6 @@
 <template>
 
-  <el-dialog
-    align-center
-    v-model="dialogVisible"
-    :title="$t('modifyWordCount')"
-    :show-close=false
-    width="300">
+  <el-dialog align-center v-model="dialogVisible" :title="$t('modifyWordCount')" :show-close=false width="300">
     <template #default>
       <el-input-number :controls="false" v-model="wordCountPerDay" :min="0" :max="100000" />
     </template>
@@ -117,7 +112,7 @@ const confirm = () => {
   // console.info("confirm", wordCountPerDay.value);
   const dayFormat = moment(day.value).format("YYYY-MM-DD");
   store.commit("updateDayCounts", { [dayFormat]: wordCountPerDay.value })
-  ;
+    ;
 };
 
 // 是否开启计划
@@ -138,33 +133,50 @@ const isGoalAchieved = (day: string) => {
 }
 
 .div-container {
-  display: flex; /* 启用 Flexbox */
-  justify-content: center; /* 水平居中 */
-  align-items: stretch; /* 使子元素垂直方向上填充容器空间 */
-  flex-direction: column; /* 改变子元素的方向为垂直 */
-  height: 100%; /* 占满高度 */
+  display: flex;
+  /* 启用 Flexbox */
+  justify-content: center;
+  /* 水平居中 */
+  align-items: stretch;
+  /* 使子元素垂直方向上填充容器空间 */
+  flex-direction: column;
+  /* 改变子元素的方向为垂直 */
+  height: 100%;
+  /* 占满高度 */
 }
 
 .flex-centered {
-  display: flex; /* 启用 Flexbox */
-  justify-content: center; /* 水平居中 */
-  align-items: center; /* 垂直居中 */
-  height: 40%; /* 占满高度，根据需要调整 */
+  display: flex;
+  /* 启用 Flexbox */
+  justify-content: center;
+  /* 水平居中 */
+  align-items: center;
+  /* 垂直居中 */
+  height: 40%;
+  /* 占满高度，根据需要调整 */
   font-weight: bold;
 }
 
 .flex-centered2 {
-  display: flex; /* 启用 Flexbox */
-  justify-content: center; /* 水平居中 */
-  align-items: center; /* 垂直居中 */
-  height: 30%; /* 占满高度，根据需要调整 */
+  display: flex;
+  /* 启用 Flexbox */
+  justify-content: center;
+  /* 水平居中 */
+  align-items: center;
+  /* 垂直居中 */
+  height: 30%;
+  /* 占满高度，根据需要调整 */
 }
 
 .flex-centered3 {
-  display: flex; /* 启用 Flexbox */
-  justify-content: center; /* 水平居中 */
-  align-items: center; /* 垂直居中 */
-  height: 30%; /* 占满高度，根据需要调整 */
+  display: flex;
+  /* 启用 Flexbox */
+  justify-content: center;
+  /* 水平居中 */
+  align-items: center;
+  /* 垂直居中 */
+  height: 30%;
+  /* 占满高度，根据需要调整 */
 }
 
 
@@ -201,7 +213,7 @@ https://github.com/yefengr/obsidian-daily-statistics/issues/7
 }
 
 /* stylelint-disable-next-line */
-.el-calendar-day > .div-container > .flex-centered3,
+.el-calendar-day>.div-container>.flex-centered3,
 .el-button-group::after,
 .el-button-group::before {
   display: none;
@@ -217,7 +229,7 @@ https://github.com/yefengr/obsidian-daily-statistics/issues/7
   height: 50px;
 }
 
-.el-calendar-day > .div-container > .flex-centered {
+.el-calendar-day>.div-container>.flex-centered {
   font-weight: 600;
 }
 
@@ -232,15 +244,24 @@ https://github.com/yefengr/obsidian-daily-statistics/issues/7
 }
 
 /* stylelint-disable-next-line */
-.el-calendar-day > .div-container p {
+.el-calendar-day>.div-container p {
   font-size: 12px;
 }
 
-.el-calendar-day > .div-container {
+.el-calendar-day>.div-container {
   gap: 5px;
 }
 
 .goal-achieved {
-  color: #67C23A; /* Element Plus 的成功绿色 */
+  color: #67C23A;
+  /* Element Plus 的成功绿色 */
 }
+
+
+
+/* 设置日历背景透明 */
+.el-calendar {
+  background-color: transparent !important;
+}
+
 </style>

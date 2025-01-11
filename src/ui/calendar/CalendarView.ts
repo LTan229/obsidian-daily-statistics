@@ -14,7 +14,6 @@ import en from "element-plus/es/locale/lang/en";
 import ElementPlus from "element-plus";
 import i18n from "@/lang/index"; // 多语言引入
 import VueIndex from "@/ui/calendar/VueIndex.vue";
-import { watch } from "vue";
 
 export const Calendar_View = "CalendarView";
 

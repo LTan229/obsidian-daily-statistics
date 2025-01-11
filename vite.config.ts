@@ -3,61 +3,58 @@ import { defineConfig } from "vite";
 import builtins from "builtin-modules";
 import vue from "@vitejs/plugin-vue";
 import { fileURLToPath, URL } from "node:url";
-import process from "node:process";
 import path from "path";
-
 import fs from "fs/promises";
 import manifest from "./manifest.json";
-
 import AutoImport from "unplugin-auto-import/vite";
 import Components from "unplugin-vue-components/vite";
 import { ElementPlusResolver } from "unplugin-vue-components/resolvers";
-
-
 import dotenv from "dotenv";
 import dotenvExpand from "dotenv-expand";
 
 const env = dotenv.config();
 dotenvExpand.expand(env);
-
 const isWatch = process.argv.includes("--watch");
 
-export default defineConfig(() => {
+
+export default defineConfig(({ mode }) => {
+  console.log(mode);  
   return {
+    define: {
+      'process.env.NODE_ENV': JSON.stringify(mode),
+      'process.env': '{}'
+    },
     plugins: [
       vue(),
       {
-        // 复制文件夹
         name: "post-build-commands",
         async closeBundle() {
           if (!isWatch) return;
-          if (!process.env.OB_PLUGIN_DIST) {
+          
+          const obPluginDist = env.parsed?.OB_PLUGIN_DIST;
+          
+          if (!obPluginDist) {
             console.log(
               "为了更好的开发体验，你可以在 .env 中配置 OB_PLUGIN_DIST"
             );
             return;
           }
-          if (process.env.NODE_ENV === "development") {
-            // 开发环境特有的配置
-          }
-          const dist = process.env.OB_PLUGIN_DIST + manifest.id + "-dev";
+
+          const dist = obPluginDist + manifest.id + "-dev";
 
           await fs.mkdir(dist, { recursive: true });
 
           const copy = async (src: string, dist: string) => {
             await fs.copyFile(src, path.resolve(dist, src));
           };
-          // do something
-          // copy file
+
           await Promise.all([
             await copy("./main.js", dist),
             await copy("./styles.css", dist),
             await copy("./manifest.json", dist)
-            // await copy("./.hotreload", dist)
           ]);
           console.log("复制结果到", dist);
         }
-
       },
       AutoImport({
         resolvers: [ElementPlusResolver()]

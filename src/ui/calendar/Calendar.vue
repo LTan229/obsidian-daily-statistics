@@ -44,7 +44,6 @@ import store from "@/data/Store";
 import { computed, ref, watch } from "vue";
 
 
-import { Check } from "@element-plus/icons-vue";
 import "element-plus/theme-chalk/dark/css-vars.css";
 import { Notice } from "obsidian";
 import { useI18n } from "vue-i18n";
@@ -57,11 +56,7 @@ const yearMon = dayjs(day.value).format("YYYY-MM");
 store.commit("updateMonth", yearMon);
 store.commit("updateDay", dayjs(day.value).format("YYYY-MM-DD"));
 
-// 周开始
-const weekStart = computed(() => {
-  console.info("weekStart", store.getters.weekStart);
-  return store.getters.weekStart;
-});
+
 
 
 let currentMonNow = dayjs(day.value).format("YYYY-MM");

@@ -9,6 +9,8 @@
   "compilerOptions": {
     "composite": true,
     "module": "ESNext",
-    "types": ["node"]
+    "types": ["node", "vite/client"],
+    "resolveJsonModule": true,
+    "esModuleInterop": true
   }
 }

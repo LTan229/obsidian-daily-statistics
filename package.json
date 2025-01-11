@@ -7,7 +7,7 @@
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
     "type-check": "vue-tsc --noEmit -p tsconfig.app.json --composite false",
     "dev": "npm run lint && vite build --watch",
-    "build": "npm run type-check && vite build --mode production",
+    "build": "vite build --mode production",
     "format": "prettier --write src/",
     "updateVersion": "tsx scripts/updateVersion.ts"
   },

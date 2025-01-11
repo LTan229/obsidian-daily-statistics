@@ -14,7 +14,7 @@ import en from "element-plus/es/locale/lang/en";
 import ElementPlus from "element-plus";
 import i18n from "@/lang/index"; // 多语言引入
 import VueIndex from "@/ui/calendar/VueIndex.vue";
-
+import { watch } from "vue";
 
 export const Calendar_View = "CalendarView";
 
@@ -78,10 +78,7 @@ export class CalendarView extends ItemView {
     store.commit("updateStatisticsData", DailyStatisticsDataManagerInstance.data.dayCounts);
     store.commit("updateWeeklyPlan", DailyStatisticsDataManagerInstance.data.weeklyPlan);
 
-    
-
-    console.log("每周开始日期:", dayjs().startOf('week').format('YYYY-MM-DD'));
-
+  
 
     // 创建并挂在组件
     const _app = createApp(VueIndex);
@@ -108,8 +105,12 @@ export class CalendarView extends ItemView {
         this.onOpen();
       }
     }, 1000 * 60 * 60);
-    // }, 1000);
+
+
+  
   }
+
+  
 
 
   async onClose() {

@@ -43,12 +43,29 @@ const enablePlan = computed(() => {
 
 
 
+// 添加一个用于强制重新渲染的 key
+const componentKey = ref(0);
+
+// 添加一个刷新方法
+const refreshView = () => {
+  componentKey.value += 1;
+};
+
+// 监听一周开始时间的变化，更新日历视图
+watch(() => store.getters.weekStart, () => {
+  // 重新加载组件
+  refreshView();
+
+});
+
+
+
 
 </script>
 
 <template>
 
-  <el-config-provider>
+  <el-config-provider :key="componentKey">
 
     <Calendar />
     <Progress v-if="enablePlan" />
@@ -57,6 +74,4 @@ const enablePlan = computed(() => {
 </template>
 
 
-<style scoped>
-
-</style>
+<style scoped></style>

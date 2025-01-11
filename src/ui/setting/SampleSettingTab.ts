@@ -2,6 +2,7 @@ import { App, PluginSettingTab, Setting } from "obsidian";
 import DailyStatisticsPlugin from "@/Index";
 import { DailyStatisticsDataManagerInstance } from "@/data/StatisticsDataManager";
 import dayjs from "dayjs";
+import i18n from "@/lang";
 
 import store from "@/data/Store";
 
@@ -18,7 +19,7 @@ export class SampleSettingTab extends PluginSettingTab {
 
   display(): void {
     const { containerEl } = this;
-    const t = dayjs.global.t;
+    const t = i18n.global.t;
     containerEl.empty();
 
     new Setting(containerEl)

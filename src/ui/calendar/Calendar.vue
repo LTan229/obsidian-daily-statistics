@@ -16,7 +16,7 @@
     </template>
   </el-dialog>
 
-  <el-calendar v-model="day" :first-day-of-week="weekStart">
+  <el-calendar v-model="day" >
     <template #date-cell="{ data }">
       <div @dblclick="setNum(data.day)" class="div-container">
         <div class="flex-centered" :class="{ 'goal-achieved': isGoalAchieved(data.day) }">
@@ -30,13 +30,6 @@
             {{ dayCount[data.day] || 0 }}
           </p>
         </div>
-        <!-- <div class="flex-centered3 ">
-          <p>
-            <el-icon v-if="((dayCount[data.day] || 0) > dayPlan[data.day]) && dayPlan[data.day] > 0">
-              <Check />
-            </el-icon>
-          </p>
-        </div> -->
       </div>
 
 
@@ -51,18 +44,18 @@ import store from "@/data/Store";
 import { computed, ref, watch } from "vue";
 
 
-import moment from "moment/moment";
 import { Check } from "@element-plus/icons-vue";
 import "element-plus/theme-chalk/dark/css-vars.css";
 import { Notice } from "obsidian";
 import { useI18n } from "vue-i18n";
+import dayjs from "dayjs";
 
 
 // 日期
 const day = ref(new Date());
-const yearMon = moment(day.value).format("YYYY-MM");
+const yearMon = dayjs(day.value).format("YYYY-MM");
 store.commit("updateMonth", yearMon);
-store.commit("updateDay", moment(day.value).format("YYYY-MM-DD"));
+store.commit("updateDay", dayjs(day.value).format("YYYY-MM-DD"));
 
 // 周开始
 const weekStart = computed(() => {
@@ -71,12 +64,12 @@ const weekStart = computed(() => {
 });
 
 
-let currentMonNow = moment(day.value).format("YYYY-MM");
+let currentMonNow = dayjs(day.value).format("YYYY-MM");
 
 watch(day, (newValue) => {
   // // // console.log("newValue", newValue);
-  store.commit("updateDay", moment(newValue).format("YYYY-MM-DD"));
-  const yearMon = moment(newValue).format("YYYY-MM");
+  store.commit("updateDay", dayjs(newValue).format("YYYY-MM-DD"));
+  const yearMon = dayjs(newValue).format("YYYY-MM");
   if (currentMonNow != yearMon) {
     store.commit("updateMonth", yearMon);
     currentMonNow = yearMon;
@@ -103,7 +96,7 @@ const { t } = useI18n() // t方法取出，t('code')使用
 
 const setNum = (day: string) => {
   // 判断日期，如果时间超过当日，则不能设置
-  if (moment(day).isAfter(moment(), "day")) {
+  if (dayjs(day).isAfter(dayjs(), "day")) {
     new Notice(t("modifyWordCountNotice"));
     return;
   }
@@ -116,7 +109,7 @@ const setNum = (day: string) => {
 const confirm = () => {
   dialogVisible.value = false;
   // console.info("confirm", wordCountPerDay.value);
-  const dayFormat = moment(day.value).format("YYYY-MM-DD");
+  const dayFormat = dayjs(day.value).format("YYYY-MM-DD");
   store.commit("updateDayCounts", { [dayFormat]: wordCountPerDay.value })
     ;
 };

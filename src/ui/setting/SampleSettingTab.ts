@@ -3,6 +3,8 @@ import DailyStatisticsPlugin from "@/Index";
 import i18n from "@/lang";
 import { DailyStatisticsDataManagerInstance } from "@/data/StatisticsDataManager";
 import moment from "moment";
+import dayjs from "dayjs";
+
 import store from "@/data/Store";
 
 /**
@@ -98,6 +100,17 @@ export class SampleSettingTab extends PluginSettingTab {
                 dow: parseInt(value),
               },
             });
+            if (locale == "zh_cn") {
+              dayjs.locale("zh-cn", {
+                weekStart: this.plugin.settings.weekStart
+              });
+            } else {
+              dayjs.locale("en", {
+                weekStart: this.plugin.settings.weekStart
+              });
+            }
+
+
           })
       );
   }

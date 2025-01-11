@@ -61,6 +61,17 @@ export class CalendarView extends ItemView {
     store.commit("updateEnablePlan", enablePlan);
     store.commit("updateWeekStart", this.plugin.settings.weekStart);
 
+    const locale = i18n.global.locale.value;
+    if (locale == "zh_cn") {
+      dayjs.locale("zh-cn", {
+        weekStart: this.plugin.settings.weekStart
+      });
+    } else {
+      dayjs.locale("en", {
+        weekStart: this.plugin.settings.weekStart
+      });
+    }
+
 
     // 初始化数据
     const yearMon = moment().format("YYYY-MM");
@@ -68,15 +79,9 @@ export class CalendarView extends ItemView {
     store.commit("updateStatisticsData", DailyStatisticsDataManagerInstance.data.dayCounts);
     store.commit("updateWeeklyPlan", DailyStatisticsDataManagerInstance.data.weeklyPlan);
 
-    const locale = i18n.global.locale.value;
-    if (locale == "zh_cn") {
-      dayjs.locale("zh-cn");
-      moment.locale("zh-cn", {
-        week: {
-          dow: 1
-        }
-      });
-    }
+    
+
+    console.log("每周开始日期:", dayjs().startOf('week').format('YYYY-MM-DD'));
 
 
     // 创建并挂在组件

@@ -8,6 +8,7 @@ const messages = {
   zh_cn: zhCnLocale,
   en: enLocale
 };
+// 使用插件默认的 moment 组件，获取地域
 let locale = moment.locale();
 
 if (locale === "zh_cn" || locale === "zh-cn" || locale === "zh") {

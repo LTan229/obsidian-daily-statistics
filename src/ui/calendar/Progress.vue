@@ -3,9 +3,14 @@
 import SetValue from "@/ui/calendar/SetNumValue.vue";
 import { Warning } from "@element-plus/icons-vue";
 import { computed } from "vue";
-import moment from "moment";
 import { useDark } from "@vueuse/core";
 import store from "@/data/Store";
+import dayjs from "dayjs";
+import isBetween from "dayjs/plugin/isBetween";
+import weekOfYear from "dayjs/plugin/weekOfYear";
+
+dayjs.extend(isBetween);
+dayjs.extend(weekOfYear);
 
 const isDark = useDark();
 let tooltipEffi = isDark ? "light" : "dark";
@@ -56,10 +61,10 @@ const dayProgress = computed(() => {
 const weekProgress = computed(() => {
   const today = store.getters.currentDay;
   // 获取本周的总字数
-  const weekStart = moment(today).startOf("week");
-  const weekEnd = moment(today).endOf("week");
+  const weekStart = dayjs(today).startOf("week");
+  const weekEnd = dayjs(today).endOf("week");
   const weekCount = Object.keys(threeMonthsData.value).reduce((acc, key) => {
-    const date = moment(key);
+    const date = dayjs(key);
     if (date.isBetween(weekStart, weekEnd, "day", "[]")) {
       acc += threeMonthsData.value[key] || 0;
     }
@@ -78,7 +83,7 @@ const weekProgress = computed(() => {
 const monthProgress = computed(() => {
   const today = store.getters.currentDay;
   const monthCount = Object.keys(threeMonthsData.value).reduce((acc, key) => {
-    const date = moment(key);
+    const date = dayjs(key);
     if (date.isSame(today, "month")) {
       acc += threeMonthsData.value[key] || 0;
     }
@@ -95,8 +100,8 @@ const monthProgress = computed(() => {
 
 const weekGoalChange = (data: number) => {
   // // console.log("weekGoalChange, data is ", data);
-  const weekCount = moment(store.getters.currentDay).week();
-  const year = moment(store.getters.currentDay).format("YYYY");
+  const weekCount = dayjs(store.getters.currentDay).week();
+  const year = dayjs(store.getters.currentDay).format("YYYY");
   const yearWeek = year + "_" + weekCount;
   store.commit("updateWeeklyPlan", { [yearWeek]: data });
 };

@@ -1,8 +1,6 @@
 import { App, PluginSettingTab, Setting } from "obsidian";
 import DailyStatisticsPlugin from "@/Index";
-import i18n from "@/lang";
 import { DailyStatisticsDataManagerInstance } from "@/data/StatisticsDataManager";
-import moment from "moment";
 import dayjs from "dayjs";
 
 import store from "@/data/Store";
@@ -20,7 +18,7 @@ export class SampleSettingTab extends PluginSettingTab {
 
   display(): void {
     const { containerEl } = this;
-    const t = i18n.global.t;
+    const t = dayjs.global.t;
     containerEl.empty();
 
     new Setting(containerEl)
@@ -93,13 +91,8 @@ export class SampleSettingTab extends PluginSettingTab {
             await this.plugin.saveSettings();
             store.commit("updateWeekStart", parseInt(value));
 
-            // 更新 moment.js 配置
-            const locale = moment.locale();
-            moment.updateLocale(locale, {
-              week: {
-                dow: parseInt(value),
-              },
-            });
+            // 更新 dayjs.js 配置
+            const locale = dayjs.locale();
             if (locale == "zh_cn") {
               dayjs.locale("zh-cn", {
                 weekStart: this.plugin.settings.weekStart

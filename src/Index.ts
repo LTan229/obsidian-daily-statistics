@@ -11,7 +11,8 @@ import { DailyStatisticsDataManagerInstance } from "@/data/StatisticsDataManager
 import { CalendarView, Calendar_View } from "@/ui/calendar/CalendarView";
 import { SampleSettingTab } from "@/ui/setting/SampleSettingTab";
 import i18n from "@/lang";
-import moment from "moment/moment";
+import dayjs from "dayjs";
+
 
 /**
  * 插件核心类
@@ -23,24 +24,17 @@ export default class DailyStatisticsPlugin extends Plugin {
   calendarView!: CalendarView;
 
   async onload() {
-    
     await this.loadSettings();
-
-
+    
     // 尽早的设置时间地域
     const locale = i18n.global.locale.value;
     if (locale == "zh_cn") {
-      moment.updateLocale("zh-cn", {
-        week: {
-          /// todo 这里获取不到配置
-          dow: this.settings.weekStart,
-        },
+      dayjs.locale("zh-cn", {
+        weekStart: this.settings.weekStart
       });
     } else {
-      moment.updateLocale("en", {
-        week: {
-          dow: this.settings.weekStart,
-        },
+      dayjs.locale("en", {
+        weekStart: this.settings.weekStart
       });
     }
 

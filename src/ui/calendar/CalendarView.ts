@@ -2,7 +2,6 @@ import { type IconName, ItemView, WorkspaceLeaf } from "obsidian";
 import { createApp, type App as VueApp } from "vue";
 import store from "@/data/Store";
 import DailyStatisticsPlugin from "@/Index";
-import moment from "moment";
 import {
   DailyStatisticsData,
   DailyStatisticsDataManagerInstance,
@@ -74,7 +73,7 @@ export class CalendarView extends ItemView {
 
 
     // 初始化数据
-    const yearMon = moment().format("YYYY-MM");
+    const yearMon = dayjs().format("YYYY-MM");
     store.commit("updateMonth", yearMon);
     store.commit("updateStatisticsData", DailyStatisticsDataManagerInstance.data.dayCounts);
     store.commit("updateWeeklyPlan", DailyStatisticsDataManagerInstance.data.weeklyPlan);
@@ -99,11 +98,11 @@ export class CalendarView extends ItemView {
     // 当有数据更新时，更新日历视图
     DailyStatisticsDataManagerInstance.addDataSaveListener(this.dailyStatisticsDataSaveListenerImpl);
 
-    const today = moment().format("YYYY-MM-DD");
+    const today = dayjs().format("YYYY-MM-DD");
     this.intervalId = setInterval(() => {
       // // console.log("检查日期是否为当天……");
       // 检查日期是否为当天，如果不是，则重新创建视图
-      if (moment().format("YYYY-MM-DD") !== today) {
+      if (dayjs().format("YYYY-MM-DD") !== today) {
         // // console.log("日期更新，重置视图");
         this.onClose();
         this.onOpen();

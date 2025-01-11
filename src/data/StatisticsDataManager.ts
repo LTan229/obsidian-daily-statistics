@@ -1,6 +1,6 @@
 import { App, Plugin, TFile } from "obsidian";
 import { DailyStatisticsSettings } from "./Settting";
-import moment from "moment";
+import dayjs from "dayjs";
 
 export interface WordCount {
   initial: number;
@@ -231,7 +231,7 @@ export class DailyStatisticsDataManager {
   }
 
   updateDate() {
-    this.today = moment().format("YYYY-MM-DD");
+    this.today = dayjs().format("YYYY-MM-DD");
   }
 
   updateCounts() {

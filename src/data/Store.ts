@@ -1,6 +1,6 @@
 // Store.ts
 import { createStore } from "vuex";
-import moment from "moment/moment";
+import dayjs from "dayjs";
 import { DailyStatisticsDataManagerInstance } from "@/data/StatisticsDataManager";
 
 interface StatisticsData {
@@ -66,8 +66,8 @@ const store = createStore<StatisticsData>({
       // return state.dayCounts;
 
       // 获取指定月份的上一月和下一月
-      const prevMonth = moment(state.currentMonth).subtract(1, "month").format("YYYY-MM");
-      const nextMonth = moment(state.currentMonth).add(1, "month").format("YYYY-MM");
+      const prevMonth = dayjs(state.currentMonth).subtract(1, "month").format("YYYY-MM");
+      const nextMonth = dayjs(state.currentMonth).add(1, "month").format("YYYY-MM");
 
       const monthData: Record<string, number> = {};
       for (const date in state.dayCounts) {
@@ -82,8 +82,8 @@ const store = createStore<StatisticsData>({
 
     // 获取本周目标
     weeklyGoal(state) {
-      const weekCount = moment(state.currentDay).week();
-      return getGoalOfWeek(state.weeklyPlan, moment().format("YYYY"), weekCount);
+      const weekCount = dayjs(state.currentDay).week();
+      return getGoalOfWeek(state.weeklyPlan, dayjs().format("YYYY"), weekCount);
     },
 
 
@@ -93,19 +93,19 @@ const store = createStore<StatisticsData>({
      */
     threeMonthsDayPlan(state) {
       const dailyGoals: Record<string, number> = {};
-      const currentYear = moment(state.currentMonth).year();
-      const currentMonth = moment(state.currentMonth).month();
+      const currentYear = dayjs(state.currentMonth).year();
+      const currentMonth = dayjs(state.currentMonth).month();
 
-      const prevMonthStart = moment(state.currentMonth).subtract(1, "month").startOf("month").dayOfYear();
-      const nextMonthEnd = moment(state.currentMonth).add(1, "month").endOf("month").dayOfYear();
-      const endOfYear = moment().endOf("year").dayOfYear();
+      const prevMonthStart = dayjs(state.currentMonth).subtract(1, "month").startOf("month").dayOfYear();
+      const nextMonthEnd = dayjs(state.currentMonth).add(1, "month").endOf("month").dayOfYear();
+      const endOfYear = dayjs().endOf("year").dayOfYear();
 
       // console.log("prevMonthStart", prevMonthStart, "nextMonthEnd", nextMonthEnd);
 
       if (prevMonthStart <= nextMonthEnd) {
         // 不跨年情况
         for (let i = prevMonthStart; i <= nextMonthEnd; i++) {
-          const date = moment().dayOfYear(i).year(currentYear);
+          const date = dayjs().dayOfYear(i).year(currentYear);
           const weekCount = date.week();
           const number = getGoalOfWeek(state.weeklyPlan, date.format("YYYY"), weekCount);
           // console.info("dailyGoals", date.format("YYYY-MM-DD"), "weekCount", weekCount, number);
@@ -117,9 +117,9 @@ const store = createStore<StatisticsData>({
         for (let i = prevMonthStart; i <= endOfYear; i++) {
           let date;
           if (currentMonth == 1) {
-            date = moment().dayOfYear(i).year(currentYear - 1); // 设置为上一年
+            date = dayjs().dayOfYear(i).year(currentYear - 1); // 设置为上一年
           } else {
-            date = moment().dayOfYear(i).year(currentYear); // 设置为当前年
+            date = dayjs().dayOfYear(i).year(currentYear); // 设置为当前年
           }
           const weekCount = date.week();
           const number = getGoalOfWeek(state.weeklyPlan, date.format("YYYY"), weekCount);
@@ -129,7 +129,7 @@ const store = createStore<StatisticsData>({
 
         // 处理从年初到 nextMonthEnd 的日期
         for (let i = 1; i <= nextMonthEnd; i++) {
-          const date = moment().dayOfYear(i).year(currentYear); // 设置为当前年
+          const date = dayjs().dayOfYear(i).year(currentYear); // 设置为当前年
           const weekCount = date.week();
           const number = getGoalOfWeek(state.weeklyPlan, date.format("YYYY"), weekCount);
           // console.info("dailyGoals", date.format("YYYY-MM-DD"), "weekCount", weekCount, number);
@@ -145,18 +145,18 @@ const store = createStore<StatisticsData>({
     monthlyGoal(state) {
       let monthlyGoal = 0;
       // 获取当前月份的第一天
-      const monthStart = moment(state.currentMonth).startOf("month").dayOfYear();
+      const monthStart = dayjs(state.currentMonth).startOf("month").dayOfYear();
       // 获取当前月份的最后一天
-      const monthEnd = moment(state.currentMonth).endOf("month").dayOfYear();
+      const monthEnd = dayjs(state.currentMonth).endOf("month").dayOfYear();
       // 找出每一天的目标，进行累加
       for (let i = monthStart; i <= monthEnd; i++) {
-        const date = moment().dayOfYear(i);
+        const date = dayjs().dayOfYear(i);
         const weekCount = date.week();
         const number = getGoalOfWeek(state.weeklyPlan, date.format("YYYY"), weekCount);
         // console.log("monthlyGoal", date.format("YYYY-MM-DD"), "weekCount", weekCount, number / 7);
         monthlyGoal += Math.floor(number / 7);
       }
-      // console.log("month is ", state.currentMonth, "monthlyGoal", monthlyGoal, "monthStart is ", moment().dayOfYear(monthStart).format("YYYY-MM-DD"), "monthEnd is ", moment().dayOfYear(monthEnd).format("YYYY-MM-DD"));
+      // console.log("month is ", state.currentMonth, "monthlyGoal", monthlyGoal, "monthStart is ", dayjs().dayOfYear(monthStart).format("YYYY-MM-DD"), "monthEnd is ", dayjs().dayOfYear(monthEnd).format("YYYY-MM-DD"));
       return monthlyGoal;
     }
 
@@ -206,7 +206,7 @@ const store = createStore<StatisticsData>({
       // 获取dayCounts 第一个属性的名称
       const day = Object.keys(dayCounts)[0];
       // 如果修改的时间是当前日期，需要单独做处理，记录在已有字数基础上，变更的数字
-      if (moment(day).isSame(moment(), "day")) {
+      if (dayjs(day).isSame(dayjs(), "day")) {
         DailyStatisticsDataManagerInstance.updateCurrentWordCount(dayCounts[day]);
       }
 

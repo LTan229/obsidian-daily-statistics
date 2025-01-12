@@ -5,7 +5,8 @@ import DailyStatisticsPlugin from "@/Index";
 import {
   DailyStatisticsData,
   DailyStatisticsDataManagerInstance,
-  type DailyStatisticsDataSaveListener
+  type DailyStatisticsDataSaveListener,
+  type DailyStatisticsDataSyncListener
 } from "@/data/StatisticsDataManager";
 import zhCn from "element-plus/es/locale/lang/zh-cn";
 import dayjs from "dayjs";
@@ -53,6 +54,18 @@ export class CalendarView extends ItemView {
     }
   };
 
+  dailyStatisticsDataSyncListenerImpl = new class DailyStatisticsDataSyncListenerImpl
+    implements DailyStatisticsDataSyncListener {
+    onSync(data: DailyStatisticsData): void {
+      store.commit("updateStatisticsData", data.dayCounts);
+      store.commit("updateWeeklyPlan", data.weeklyPlan);
+    }
+
+    getListenerId(): string {
+      return "DailyStatisticsDataSyncListenerImpl-CalendarView";
+    }
+  };
+
   async onOpen() {
 
     const enablePlan = this.plugin.settings.enablePlan;
@@ -93,6 +106,7 @@ export class CalendarView extends ItemView {
 
     // 当有数据更新时，更新日历视图
     DailyStatisticsDataManagerInstance.addDataSaveListener(this.dailyStatisticsDataSaveListenerImpl);
+    DailyStatisticsDataManagerInstance.addDataSyncListener(this.dailyStatisticsDataSyncListenerImpl);
 
     const today = dayjs().format("YYYY-MM-DD");
     this.intervalId = setInterval(() => {

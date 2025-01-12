@@ -9,7 +9,6 @@ export interface WordCount {
 
 /**
  * 统计数据
- * todo 这里将所有的数据都加载到了内存中，会不会对性能有影响？
  */
 export class DailyStatisticsData {
   dayCounts: Record<string, number> = {};
@@ -26,12 +25,21 @@ export class DailyStatisticsDataManager {
   today!: string;
   currentWordCount!: number;
   dataSaveListeners: DailyStatisticsDataSaveListener[] = [];
-
+  dataSyncListeners: DailyStatisticsDataSyncListener[] = [];
   app!: App;
   data: DailyStatisticsData;
   plugin!: Plugin;
 
   loadingData = false;
+
+
+  /**
+   * 数据同步时间(ms) 
+   * 这个变量的作用是为了处理多端数据同步时的冲突。
+   * 每次更新数据文件时，更新这个时间。
+   * 定时检查数据文件的修改时间，如果与系统中记录的时间不一致，则说明文件被外部程序修改了，则重新从文件中加载数据。
+   */
+  dataSynchronTime: number = 0;
 
   constructor() {
     // 给一个默认值，避免出错
@@ -44,9 +52,13 @@ export class DailyStatisticsDataManager {
     this.plugin = plugin;
   }
 
-  // 加载数据
+
+  /**
+   * 加载数据
+   */
   async loadStatisticsData() {
-    // // console.log("loadStatisticsData, dataFile is " + this.filePath);
+    this.loadingData = false;
+//    console.log("loadStatisticsData, filePath is " + this.filePath);
 
     // 如果配置文件为空，则从默认的设置中加载杜
     if (this.filePath == null || this.filePath == "") {
@@ -80,6 +92,7 @@ export class DailyStatisticsDataManager {
         new DailyStatisticsData(),
         await JSON.parse(await this.app.vault.read(this.file))
       );
+      // console.log("loadStatisticsData, data is " + JSON.stringify(this.data));
     }
 
     this.updateDate();
@@ -91,8 +104,25 @@ export class DailyStatisticsDataManager {
       this.currentWordCount = 0;
       this.data.currentManuallyModifyWordCount = 0;
     }
+    this.afterDataSync();
+
     this.loadingData = true;
+    this.dataSynchronTime = Date.now();
+    // console.log("loadStatisticsData, dataSynchronTime is " + this.dataSynchronTime);
   }
+
+  // 获取当前数据文件的更新时间
+  async getFileModifiedTime(): Promise<number> {
+    if (this.file == null) {
+      // 如果文件为空，则说明使用的插件的默认数据配置，这种情况下，不能进行同步，也不需要进行比较，所以返回 0
+      return 0;
+    }    
+    const stats = await this.app.vault.adapter.stat(this.file.path);
+    return stats?.mtime ?? 0;
+  }
+
+
+
 
   removeProperties(
     obj: Record<string, any>,
@@ -113,9 +143,20 @@ export class DailyStatisticsDataManager {
     this.dataSaveListeners.push(listener);
   }
 
+  addDataSyncListener(listener: DailyStatisticsDataSyncListener) {
+    this.dataSyncListeners.push(listener);
+  }
+  
+
   // 移除数据监听器
   removeDataSaveListener(listener: DailyStatisticsDataSaveListener) {
     this.dataSaveListeners = this.dataSaveListeners.filter(
+      (item) => item.getListenerId() !== listener.getListenerId()
+    );
+  }
+
+  removeDataSyncListener(listener: DailyStatisticsDataSyncListener) {
+    this.dataSyncListeners = this.dataSyncListeners.filter(
       (item) => item.getListenerId() !== listener.getListenerId()
     );
   }
@@ -134,6 +175,7 @@ export class DailyStatisticsDataManager {
             JSON.stringify(this.data)
           );
         }
+        // console.log("saveStatisticsData, data is " + JSON.stringify(this.data));
         await this.app.vault.modify(this.file, JSON.stringify(this.data));
       } else {
         let data = await this.plugin.loadData();
@@ -145,24 +187,50 @@ export class DailyStatisticsDataManager {
         await this.plugin.saveData(data);
       }
 
-      // 异步执行监听器
-      new Promise(() => {
-        for (const listener of this.dataSaveListeners) {
-          try {
-            listener.onSave(this.data);
-            // // // console.log("dataSaveListener 执行完成, listenerId is " + listener.getListenerId());
-          } catch (error) {
-            console.error(
-              "dataSaveListeners, 执行异常, listenerId is " +
-                listener.getListenerId(),
-              error
-            );
-          }
-        }
-      });
+      // 异步执行监听器，数据保存之后的回调
+      this.dataSynchronTime = Date.now();
+      // console.log("saveStatisticsData, dataSynchronTime is " + this.dataSynchronTime);
+      this.afterDataSave();
     } catch (error) {
       console.error("保存统计数据出错：", error);
     }
+  }
+
+
+
+  /**
+  * 异步执行监听器，数据保存之后的回调
+  */
+  afterDataSave() {
+    new Promise(() => {
+      for (const listener of this.dataSaveListeners) {
+        try {
+          listener.onSave(this.data);
+          // // // console.log("dataSaveListener 执行完成, listenerId is " + listener.getListenerId());
+        } catch (error) {
+          console.error(
+            "dataSaveListeners, 执行异常, listenerId is " +
+            listener.getListenerId(),
+            error
+          );
+        }
+      }
+    });
+  }
+
+  /**
+   * 异步执行监听器，数据同步之后的回调
+   */
+  afterDataSync() {
+    new Promise(() => {
+      for (const listener of this.dataSyncListeners) {
+        try {
+          listener.onSync(this.data);
+        } catch (error) {
+          console.error("dataSyncListeners, 执行异常, listenerId is " + listener.getListenerId(), error);
+        }
+      }
+    });
   }
 
   /**
@@ -270,6 +338,16 @@ export interface DailyStatisticsDataSaveListener {
 
   getListenerId(): string;
 }
+
+/**
+ * 数据同步监听
+ */
+export interface DailyStatisticsDataSyncListener {
+  onSync(data: DailyStatisticsData): void;
+  getListenerId(): string;
+}
+
+
 
 export const DailyStatisticsDataManagerInstance: DailyStatisticsDataManager =
   new DailyStatisticsDataManager();

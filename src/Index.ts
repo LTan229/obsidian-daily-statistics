@@ -25,7 +25,7 @@ export default class DailyStatisticsPlugin extends Plugin {
 
   async onload() {
     await this.loadSettings();
-    
+
     // 尽早的设置时间地域
     const locale = i18n.global.locale.value;
     if (locale == "zh_cn") {
@@ -60,6 +60,23 @@ export default class DailyStatisticsPlugin extends Plugin {
 
           this.openForTheFirstTime();
         }, 500);
+
+
+        // 检查文件的修改时间
+        this.registerInterval(
+          window.setInterval(() => {
+            DailyStatisticsDataManagerInstance.getFileModifiedTime().then((time) => {
+              if (time > DailyStatisticsDataManagerInstance.dataSynchronTime) {
+                console.log("loadStatisticsData, fileModifiedTime is " + time + ", dataSynchronTime is " + DailyStatisticsDataManagerInstance.dataSynchronTime);
+                DailyStatisticsDataManagerInstance.loadStatisticsData();
+              
+              }
+            });
+          }, 1000)
+        );
+
+
+
       })
       .catch((e) => {
         console.error("loadStatisticsData error", e);
@@ -92,7 +109,7 @@ export default class DailyStatisticsPlugin extends Plugin {
       window.setInterval(() => {
         this.statusBarItemEl.setText(
           t("todaySWordCount") +
-            DailyStatisticsDataManagerInstance.currentWordCount
+          DailyStatisticsDataManagerInstance.currentWordCount
         );
       }, 1000)
     );
@@ -132,7 +149,7 @@ export default class DailyStatisticsPlugin extends Plugin {
     setTimeout(() => {
       const { workspace } = this.app;
 
-    // console.log("workspace", workspace);
+      // console.log("workspace", workspace);
 
       const leaves = workspace.getLeavesOfType(Calendar_View);
       // 初次使用时，没有侧边栏按钮，则打开一个

@@ -1,6 +1,9 @@
 // Store.ts
 import { createStore } from "vuex";
 import dayjs from "dayjs";
+import dayOfYear from "dayjs/plugin/dayOfYear";
+dayjs.extend(dayOfYear);
+
 import { DailyStatisticsDataManagerInstance } from "@/data/StatisticsDataManager";
 
 interface StatisticsData {
@@ -217,6 +220,13 @@ const store = createStore<StatisticsData>({
       state.dayCounts = { ...assign };
       DailyStatisticsDataManagerInstance.data.dayCounts = state.dayCounts;
       DailyStatisticsDataManagerInstance.saveStatisticsData().then();
+    },
+
+    /**
+     * 所有数据刷新
+     */
+    refreshAllData(state) {
+      DailyStatisticsDataManagerInstance.loadStatisticsData();
     }
 
 

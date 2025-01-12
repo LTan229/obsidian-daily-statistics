@@ -58,7 +58,7 @@ export class DailyStatisticsDataManager {
    */
   async loadStatisticsData() {
     this.loadingData = false;
-//    console.log("loadStatisticsData, filePath is " + this.filePath);
+    //    console.log("loadStatisticsData, filePath is " + this.filePath);
 
     // 如果配置文件为空，则从默认的设置中加载杜
     if (this.filePath == null || this.filePath == "") {
@@ -106,9 +106,8 @@ export class DailyStatisticsDataManager {
     }
     this.afterDataSync();
 
-    this.loadingData = true;
     this.dataSynchronTime = Date.now();
-    // console.log("loadStatisticsData, dataSynchronTime is " + this.dataSynchronTime);
+    this.loadingData = true;
   }
 
   // 获取当前数据文件的更新时间
@@ -116,7 +115,7 @@ export class DailyStatisticsDataManager {
     if (this.file == null) {
       // 如果文件为空，则说明使用的插件的默认数据配置，这种情况下，不能进行同步，也不需要进行比较，所以返回 0
       return 0;
-    }    
+    }
     const stats = await this.app.vault.adapter.stat(this.file.path);
     return stats?.mtime ?? 0;
   }
@@ -146,7 +145,7 @@ export class DailyStatisticsDataManager {
   addDataSyncListener(listener: DailyStatisticsDataSyncListener) {
     this.dataSyncListeners.push(listener);
   }
-  
+
 
   // 移除数据监听器
   removeDataSaveListener(listener: DailyStatisticsDataSaveListener) {
@@ -186,10 +185,9 @@ export class DailyStatisticsDataManager {
         Object.assign(data, this.data);
         await this.plugin.saveData(data);
       }
+      this.dataSynchronTime = Date.now();
 
       // 异步执行监听器，数据保存之后的回调
-      this.dataSynchronTime = Date.now();
-      // console.log("saveStatisticsData, dataSynchronTime is " + this.dataSynchronTime);
       this.afterDataSave();
     } catch (error) {
       console.error("保存统计数据出错：", error);

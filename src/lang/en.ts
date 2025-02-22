@@ -1,6 +1,7 @@
 export default {
 
   "all": "All",
+  "no": "No",
 
   // 日历
   "modifyWordCount": "Modify word count",
@@ -24,9 +25,11 @@ export default {
   "statisticalDataStorageAddress": "Statistics data saving address",
   "statisticalDataStorageAddressExplained": "Set the daily statistical data saving address. If it is empty, it will be saved in the default plug-in directory. If the data file exists in a parent folder, please create it in advance. It is recommended to use the .json data format. After modifying this configuration, you need to reload the plugin."
   ,
-  "statisticsCatalog": "Statistics Directory"
+  "statisticsFolder": "Statistics Directory"
   ,
-  "statisticsCatalogExplained": "Set the directory where statistical data is required. If it is empty, the data of the entire database will be counted."
+  "statisticsFolderExplained": "Set the directory where statistical data is required. If it is empty, the data of the entire database will be counted."
+  ,"excludeFolder":"Exclude Directory"
+  ,"excludeFolderExplained":"Set the directory that needs to be excluded. If it is empty, it will not be excluded."
   ,"statisticsWord":"Count words"
   ,"statisticsWordExplained":"Count words instead of characters. Please note that after switching this option, the current day's statistics will be reset."
   ,"enablePlan":"Enable plan"

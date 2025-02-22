@@ -33,8 +33,8 @@ export class SampleSettingTab extends PluginSettingTab {
       );
 
     new Setting(containerEl)
-      .setName(t("statisticsCatalog"))
-      .setDesc(t("statisticsCatalogExplained"))
+      .setName(t("statisticsFolder"))
+      .setDesc(t("statisticsFolderExplained"))
       .addText((text) =>
         text
           .setPlaceholder(t("all"))
@@ -44,7 +44,21 @@ export class SampleSettingTab extends PluginSettingTab {
             await this.plugin.saveSettings();
           })
       );
+
     new Setting(containerEl)
+      .setName(t("excludeFolder"))
+      .setDesc(t("excludeFolderExplained"))
+      .addText((text) =>
+        text
+          .setPlaceholder(t("no"))
+          .setValue(this.plugin.settings.excludeFolder)
+          .onChange(async (value) => {
+            this.plugin.settings.excludeFolder = value;
+            await this.plugin.saveSettings();
+          })
+      );
+
+      new Setting(containerEl)
       .setName(t("statisticsWord"))
       .setDesc(t("statisticsWordExplained"))
       .addToggle((component) =>

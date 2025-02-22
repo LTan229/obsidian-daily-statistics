@@ -1,6 +1,7 @@
 export default {
   // common
   "all": "全部",
+  "no": "无",
 
   // 日历
   "modifyWordCount": "修改字数",
@@ -22,8 +23,10 @@ export default {
 //  设置界面
   "statisticalDataStorageAddress": "统计数据保存地址",
   "statisticalDataStorageAddressExplained": "设置每日统计数据保存地址，如果为空，则保存在默认的插件目录下。如果数据文件存在父级文件夹，请提前创建。建议使用 .json 的数据格式。修改该配置后，需要重新加载插件。"
-  , "statisticsCatalog": "统计目录"
-  , "statisticsCatalogExplained": "设置需要统计数据的目录，如果为空，则统计全库的数据。"
+  , "statisticsFolder": "统计目录"
+  , "statisticsFolderExplained": "设置需要统计数据的目录，如果为空，则统计全库的数据。"
+  ,"excludeFolder":"排除目录"
+  ,"excludeFolderExplained":"设置需要排除的目录，如果为空，则不排除。"
   ,"statisticsWord":"统计单词"
   ,"statisticsWordExplained":"统计单词而不是字符。请注意，切换该选项之后，当日的统计数据将被重置。"
   ,"enablePlan":"开启计划"

@@ -225,7 +225,7 @@ const store = createStore<StatisticsData>({
     /**
      * 所有数据刷新
      */
-    refreshAllData(state) {
+    refreshAllData() {
       DailyStatisticsDataManagerInstance.loadStatisticsData();
     }
 

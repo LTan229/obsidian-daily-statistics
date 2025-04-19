@@ -69,7 +69,7 @@ export default class DailyStatisticsPlugin extends Plugin {
               if (time > DailyStatisticsDataManagerInstance.dataSynchronTime) {
                 console.log("loadStatisticsData, fileModifiedTime is " + time + ", dataSynchronTime is " + DailyStatisticsDataManagerInstance.dataSynchronTime);
                 DailyStatisticsDataManagerInstance.loadStatisticsData();
-              
+
               }
             });
           }, 1000)
@@ -89,12 +89,17 @@ export default class DailyStatisticsPlugin extends Plugin {
 
         // 排除文件夹
         if (this.settings.excludeFolder != null && this.settings.excludeFolder != "" && this.settings.excludeFolder != "/") {
-           // 使用正则表达式确保精确匹配文件夹路径
-           const excludePattern = new RegExp(`^${this.settings.excludeFolder}(/|$)`);
-           if (filepath.match(excludePattern)) {
-            //  console.log("排除文件夹，不统计数据  " + filepath);
-             return;
-           }
+          // 支持多个文件夹排除，使用逗号分隔
+          const folders = this.settings.excludeFolder.split(',').map(folder => folder.trim()).filter(folder => folder !== "");
+
+          // 构建匹配多个文件夹的正则表达式
+          const folderPatterns = folders.map(folder => `^${folder}(/|$)`);
+          const excludePattern = new RegExp(folderPatterns.join('|'));
+
+          if (filepath.match(excludePattern)) {
+            // console.log("排除文件夹，不统计数据: " + filepath);
+            return;
+          }
         }
 
         if (
@@ -102,10 +107,15 @@ export default class DailyStatisticsPlugin extends Plugin {
           this.settings.statisticsFolder != "" &&
           this.settings.statisticsFolder != "/"
         ) {
-          // 使用正则表达式确保精确匹配文件夹路径
-          const includePattern = new RegExp(`^${this.settings.statisticsFolder}(/|$)`);
+          // 支持多个文件夹包含，使用逗号分隔
+          const folders = this.settings.statisticsFolder.split(',').map(folder => folder.trim()).filter(folder => folder !== "");
+
+          // 构建匹配多个文件夹的正则表达式
+          const folderPatterns = folders.map(folder => `^${folder}(/|$)`);
+          const includePattern = new RegExp(folderPatterns.join('|'));
+
           if (!filepath.match(includePattern)) {
-            // console.log("文件路径不匹配，不统计" + filepath);
+            // console.log("文件路径不匹配，不统计: " + filepath);
             return;
           }
         }

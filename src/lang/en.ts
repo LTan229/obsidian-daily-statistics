@@ -27,9 +27,9 @@ export default {
   ,
   "statisticsFolder": "Statistics Directory"
   ,
-  "statisticsFolderExplained": "Set the directory where statistical data is required. If it is empty, the data of the entire database will be counted."
+  "statisticsFolderExplained": "Set the directories for which statistics should be calculated. Multiple directories are supported and should be separated by English commas (e.g., `folder1/folder2,folder3`). If left empty, statistics will be calculated for the entire vault."
   ,"excludeFolder":"Exclude Directory"
-  ,"excludeFolderExplained":"Set the directory that needs to be excluded. If it is empty, it will not be excluded."
+  ,"excludeFolderExplained":"Set the directories to be excluded, supporting multiple directories separated by English commas (e.g., `folder1/folder2,folder3`). If left empty, no directories will be excluded."
   ,"statisticsWord":"Count words"
   ,"statisticsWordExplained":"Count words instead of characters. Please note that after switching this option, the current day's statistics will be reset."
   ,"enablePlan":"Enable plan"

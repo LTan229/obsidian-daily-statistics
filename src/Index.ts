@@ -1,6 +1,8 @@
 import {
   debounce,
   type Debouncer,
+  Editor,
+  type MarkdownFileInfo,
   MarkdownView,
   Plugin,
   TFile,
@@ -19,7 +21,7 @@ import dayjs from "dayjs";
  */
 export default class DailyStatisticsPlugin extends Plugin {
   settings!: DailyStatisticsSettings;
-  debouncedUpdate!: Debouncer<[contents: string, filepath: string], void>;
+  debouncedUpdate!: Debouncer<[contents: string | null, filepath: string], void>;
   private statusBarItemEl!: HTMLElement;
   calendarView!: CalendarView;
 
@@ -82,10 +84,13 @@ export default class DailyStatisticsPlugin extends Plugin {
         console.error("loadStatisticsData error", e);
       });
 
-    this.debouncedUpdate = debounce(
-      (contents: string, filepath: string) => {
-        // console.log("debounce updateWordCount" + filepath);
+    this.debouncedUpdate = debounce<[contents: string | null, filepath: string], void>(
+      (contents: string | null, filepath: string) => {
 
+        if (filepath == null || filepath == "") {
+          console.warn("filepath is null or empty, not update");
+          return;
+        }
 
         // 排除文件夹
         if (this.settings.excludeFolder != null && this.settings.excludeFolder != "" && this.settings.excludeFolder != "/") {
@@ -139,7 +144,7 @@ export default class DailyStatisticsPlugin extends Plugin {
 
     // 在快速预览时，更新统计数据
     this.registerEvent(
-      this.app.workspace.on("quick-preview", this.onQuickPreview.bind(this))
+      this.app.workspace.on("editor-change", this.onEditorChange.bind(this))
     );
     // 当文件被打开时，便统计一次字数
     this.registerEvent(
@@ -236,14 +241,21 @@ export default class DailyStatisticsPlugin extends Plugin {
   }
 
   // 在预览时更新统计字数
-  onQuickPreview(file: TFile, contents: string) {
-    if (this.app.workspace.getActiveViewOfType(MarkdownView)) {
-      this.debouncedUpdate(contents, file.path);
+  onEditorChange(editor: Editor, info: MarkdownView | MarkdownFileInfo) {
+    if (info instanceof MarkdownView) {
+      const file = info.file;
+      const contents = editor.getValue();
+      if (file) {
+        this.debouncedUpdate(contents, file.path);
+      }
+    } else {
+      console.log("onEditorChange, info is not MarkdownView");
     }
   }
 
-  onFileOpen(file: TFile) {
-    if (this.app.workspace.getActiveViewOfType(MarkdownView)) {
+  // 当文件被打开时统计字数
+  onFileOpen(file: TFile | null) {
+    if (file && this.app.workspace.getActiveViewOfType(MarkdownView)) {
       this.debouncedUpdate(null, file.path);
     }
   }

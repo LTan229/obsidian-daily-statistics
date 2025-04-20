@@ -271,7 +271,7 @@ export class DailyStatisticsDataManager {
     return (text.match(pattern) || []).length;
   }
 
-  async updateWordCount(contents: string, filepath: string) {
+  async updateWordCount(contents: string | null, filepath: string) {
     if (contents == null || contents.length == 0) {
       const tempFile = this.app.vault.getFileByPath(filepath);
       contents = await this.app.vault.read(tempFile);

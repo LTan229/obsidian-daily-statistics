@@ -307,7 +307,7 @@ export class DailyStatisticsDataManager {
   updateCounts() {
 
     this.currentWordCount = Object.values(this.data.todayWordCount)
-      .map((wordCount) => Math.max(0, wordCount.current || 0 - wordCount.initial || 0))
+      .map((wordCount) => Math.max(0, (wordCount.current || 0) - (wordCount.initial || 0)))
       .reduce((a, b) => a + b, 0);
     // console.log("currentWordCount", this.currentWordCount);
     this.currentWordCount += this.data.currentManuallyModifyWordCount;

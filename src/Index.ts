@@ -249,7 +249,7 @@ export default class DailyStatisticsPlugin extends Plugin {
         this.debouncedUpdate(contents, file.path);
       }
     } else {
-      console.log("onEditorChange, info is not MarkdownView");
+      // console.log("onEditorChange, info is not MarkdownView");
     }
   }
 

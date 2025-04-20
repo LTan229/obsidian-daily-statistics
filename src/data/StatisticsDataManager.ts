@@ -1,6 +1,7 @@
 import { App, Plugin, TFile } from "obsidian";
 import { DailyStatisticsSettings } from "./Settting";
 import dayjs from "dayjs";
+import DailyStatisticsPlugin from "@/Index";
 
 export interface WordCount {
   initial: number;
@@ -28,7 +29,7 @@ export class DailyStatisticsDataManager {
   dataSyncListeners: DailyStatisticsDataSyncListener[] = [];
   app!: App;
   data: DailyStatisticsData;
-  plugin!: Plugin;
+  plugin!: DailyStatisticsPlugin;  // 修改类型为 DailyStatisticsPlugin
 
   loadingData = false;
 
@@ -46,7 +47,7 @@ export class DailyStatisticsDataManager {
     this.data = new DailyStatisticsData();
   }
 
-  init(dataFile: string, app: App, plugin: Plugin) {
+  init(dataFile: string, app: App, plugin: DailyStatisticsPlugin) {  // 修改参数类型
     this.filePath = dataFile;
     this.app = app;
     this.plugin = plugin;
@@ -274,6 +275,9 @@ export class DailyStatisticsDataManager {
   async updateWordCount(contents: string | null, filepath: string) {
     if (contents == null || contents.length == 0) {
       const tempFile = this.app.vault.getFileByPath(filepath);
+      if (tempFile == null) {
+        return;
+      }
       contents = await this.app.vault.read(tempFile);
     }
     const curr = this.getWordCount(contents);
@@ -301,7 +305,7 @@ export class DailyStatisticsDataManager {
   }
 
   updateCounts() {
-    
+
     this.currentWordCount = Object.values(this.data.todayWordCount)
       .map((wordCount) => Math.max(0, wordCount.current || 0 - wordCount.initial || 0))
       .reduce((a, b) => a + b, 0);

@@ -301,12 +301,14 @@ export class DailyStatisticsDataManager {
   }
 
   updateCounts() {
+    
     this.currentWordCount = Object.values(this.data.todayWordCount)
-      .map((wordCount) => Math.max(0, wordCount.current - wordCount.initial))
+      .map((wordCount) => Math.max(0, wordCount.current || 0 - wordCount.initial || 0))
       .reduce((a, b) => a + b, 0);
+    // console.log("currentWordCount", this.currentWordCount);
     this.currentWordCount += this.data.currentManuallyModifyWordCount;
     this.data.dayCounts[this.today] = this.currentWordCount;
-
+    // console.log("updateCounts", this.data);
     this.saveStatisticsData().then();
   }
 

@@ -11,7 +11,7 @@
     width="300">
 
     <template #default>
-      <el-input-number :controls="false" v-model="num" :min="7" :max="20000" />
+      <el-input-number :controls="false" v-model="num" :min="7"  />
     </template>
 
 

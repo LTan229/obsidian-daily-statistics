@@ -19,6 +19,17 @@
 - [x] 支持移动端
 
 
+## 更新
+- 2026.03.30 增加输入时长统计
+
+
+## 饼
+- obsidian应用活跃时长统计
+- 小黑屋模式：未完成目标禁止退出文件
+- 呕吐模式：一段时间内未进行输入即丢失内容
+- （没起名的模式）：限制文档活跃时间，超时后禁止编辑文档
+
+
 ## 其他
 
 这个插件的许多功能参考了[obsidian-word-count](https://github.com/lukeleppan/better-word-count) 和 [obsidian-daily-stats](https://github.com/dhruvik7/obsidian-daily-stats)。

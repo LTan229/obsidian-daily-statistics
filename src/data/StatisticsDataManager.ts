@@ -8,11 +8,16 @@ export interface WordCount {
   current: number;
 }
 
+export interface DailyRecord {
+  wordCount: number;
+  editDuration: number;
+}
+
 /**
  * 统计数据
  */
 export class DailyStatisticsData {
-  dayCounts: Record<string, number> = {};
+  dayCounts: Record<string, DailyRecord> = {};
   todayWordCount: Record<string, WordCount> = {};
   // 每周计划
   weeklyPlan: Record<string, number> = {};
@@ -25,8 +30,10 @@ export class DailyStatisticsDataManager {
   file!: TFile | null;
   today!: string;
   currentWordCount!: number;
+  currentEditDuration!: number;
   dataSaveListeners: DailyStatisticsDataSaveListener[] = [];
   dataSyncListeners: DailyStatisticsDataSyncListener[] = [];
+  inputListeners: DailyStatisticsInputListener[] = [];
   app!: App;
   data: DailyStatisticsData;
   plugin!: DailyStatisticsPlugin;  // 修改类型为 DailyStatisticsPlugin
@@ -99,10 +106,12 @@ export class DailyStatisticsDataManager {
     this.updateDate();
     if (Object.prototype.hasOwnProperty.call(this.data.dayCounts, this.today)) {
       this.updateCounts();
+      this.updateEditDuration(0);
     } else {
       // 如果记录中，没有当前日期的记录，则说明是新的一天，更新每日字数，和初始化记录
       this.data.todayWordCount = {};
       this.currentWordCount = 0;
+      this.currentEditDuration = 0;
       this.data.currentManuallyModifyWordCount = 0;
     }
     this.afterDataSync();
@@ -147,6 +156,10 @@ export class DailyStatisticsDataManager {
     this.dataSyncListeners.push(listener);
   }
 
+  addInputListener(listener: DailyStatisticsInputListener) {
+    this.inputListeners.push(listener);
+  }
+
 
   // 移除数据监听器
   removeDataSaveListener(listener: DailyStatisticsDataSaveListener) {
@@ -157,6 +170,12 @@ export class DailyStatisticsDataManager {
 
   removeDataSyncListener(listener: DailyStatisticsDataSyncListener) {
     this.dataSyncListeners = this.dataSyncListeners.filter(
+      (item) => item.getListenerId() !== listener.getListenerId()
+    );
+  }
+
+  removeInputListener(listener: DailyStatisticsInputListener) {
+    this.inputListeners = this.inputListeners.filter(
       (item) => item.getListenerId() !== listener.getListenerId()
     );
   }
@@ -300,6 +319,14 @@ export class DailyStatisticsDataManager {
     this.updateCounts();
   }
 
+  async updateEditDuration(durationMS: number) {
+    console.log(this.today, this.data.dayCounts[this.today], this.currentEditDuration, this.data.dayCounts[this.today]?.editDuration);
+    this.currentEditDuration = this.data.dayCounts[this.today]?.editDuration || 0
+    this.currentEditDuration += durationMS;
+    this.data.dayCounts[this.today].editDuration = this.currentEditDuration;
+    this.saveStatisticsData().then();
+  }
+
   updateDate() {
     this.today = dayjs().format("YYYY-MM-DD");
   }
@@ -311,7 +338,7 @@ export class DailyStatisticsDataManager {
       .reduce((a, b) => a + b, 0);
     // console.log("currentWordCount", this.currentWordCount);
     this.currentWordCount += this.data.currentManuallyModifyWordCount;
-    this.data.dayCounts[this.today] = this.currentWordCount;
+    this.data.dayCounts[this.today].wordCount = this.currentWordCount;
     // console.log("updateCounts", this.data);
     this.saveStatisticsData().then();
   }
@@ -323,7 +350,7 @@ export class DailyStatisticsDataManager {
     // 然后再根据真实值，计算新的手动值
     this.data.currentManuallyModifyWordCount = wordCount - actualValue;
     this.currentWordCount = wordCount;
-  }
+  }  
 
   /**
    * 重置当日统计数据
@@ -331,6 +358,7 @@ export class DailyStatisticsDataManager {
   resetCurrentDayStatistics() {
     this.data.todayWordCount = {};
     this.updateCounts();
+    this.updateEditDuration(0);
   }
 }
 
@@ -351,7 +379,10 @@ export interface DailyStatisticsDataSyncListener {
   getListenerId(): string;
 }
 
-
+export interface DailyStatisticsInputListener {
+  onInput(data: DailyStatisticsData): void;
+  getListenerId(): string;
+}
 
 export const DailyStatisticsDataManagerInstance: DailyStatisticsDataManager =
   new DailyStatisticsDataManager();

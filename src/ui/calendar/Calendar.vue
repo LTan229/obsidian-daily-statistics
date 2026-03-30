@@ -1,8 +1,18 @@
 <template>
-
-  <el-dialog align-center v-model="dialogVisible" :title="$t('modifyWordCount')" :show-close=false width="300">
+  <el-dialog
+    align-center
+    v-model="dialogVisible"
+    :title="$t('modifyWordCount')"
+    :show-close="false"
+    width="300"
+  >
     <template #default>
-      <el-input-number :controls="false" v-model="wordCountPerDay" :min="0" :max="100000" />
+      <el-input-number
+        :controls="false"
+        v-model="wordCountPerDay"
+        :min="0"
+        :max="100000"
+      />
     </template>
     <template #footer>
       <div class="dialog-footer">
@@ -16,48 +26,51 @@
     </template>
   </el-dialog>
 
-  <el-calendar v-model="day" >
+  <el-calendar v-model="day">
     <template #date-cell="{ data }">
       <div @dblclick="setNum(data.day)" class="div-container">
-        <div class="flex-centered" :class="{ 'goal-achieved': isGoalAchieved(data.day) }">
+        <div
+          class="flex-centered"
+          :class="{ 'goal-achieved': isGoalAchieved(data.day) }"
+        >
           <p>
             {{ data.date.getDate() }}
           </p>
         </div>
 
+        <div
+          class="flex-centered2"
+          :class="{ 'goal-achieved': isGoalAchieved(data.day) }"
+        >
+          <p>
+            {{ dayCount[data.day]?.wordCount || 0 }}
+          </p>
+        </div>
+
         <div class="flex-centered2" :class="{ 'goal-achieved': isGoalAchieved(data.day) }">
           <p>
-            {{ dayCount[data.day] || 0 }}
+            {{ formatDuration(dayCount[data.day]?.editDuration) }}
           </p>
         </div>
       </div>
-
-
     </template>
-
   </el-calendar>
-
 </template>
 
 <script lang="ts" setup>
 import store from "@/data/Store";
 import { computed, ref, watch } from "vue";
 
-
 import "element-plus/theme-chalk/dark/css-vars.css";
 import { Notice } from "obsidian";
 import { useI18n } from "vue-i18n";
 import dayjs from "dayjs";
-
 
 // 日期
 const day = ref(new Date());
 const yearMon = dayjs(day.value).format("YYYY-MM");
 store.commit("updateMonth", yearMon);
 store.commit("updateDay", dayjs(day.value).format("YYYY-MM-DD"));
-
-
-
 
 let currentMonNow = dayjs(day.value).format("YYYY-MM");
 
@@ -79,15 +92,17 @@ const dayPlan = computed(() => {
   return store.getters.threeMonthsDayPlan || {};
 });
 
-
 /**
  * 设置每天的字数
  * @param day
  */
 const dialogVisible = ref(false);
-const wordCountPerDay = ref(0);
+let dailyRecord = {
+  wordCount: 0,
+  editDuration: 0
+};
 
-const { t } = useI18n() // t方法取出，t('code')使用
+const { t } = useI18n(); // t方法取出，t('code')使用
 
 const setNum = (day: string) => {
   // 判断日期，如果时间超过当日，则不能设置
@@ -96,17 +111,18 @@ const setNum = (day: string) => {
     return;
   }
 
-
   dialogVisible.value = true;
-  wordCountPerDay.value = dayCount.value[day] || 0;
+  dailyRecord = {
+    wordCount: dayCount.value[day]?.wordCount || 0,
+    editDuration: dayCount.value[day]?.editDuration || 0
+  };
 };
 
 const confirm = () => {
   dialogVisible.value = false;
   // console.info("confirm", wordCountPerDay.value);
   const dayFormat = dayjs(day.value).format("YYYY-MM-DD");
-  store.commit("updateDayCounts", { [dayFormat]: wordCountPerDay.value })
-    ;
+  store.commit("updateDayStats", { [dayFormat]: dailyRecord } );
 };
 
 // 是否开启计划
@@ -115,11 +131,32 @@ const enablePlan = computed(() => {
 });
 
 const isGoalAchieved = (day: string) => {
-  return enablePlan.value && dayPlan.value[day] > 0 && (dayCount.value[day] || 0) > dayPlan.value[day];
+  return (
+    enablePlan.value &&
+    dayPlan.value[day] > 0 &&
+    (dayCount.value[day] || 0) > dayPlan.value[day]
+  );
 };
 
-</script>
+const formatDuration = (ms: number | undefined | null) => {
+  if (!ms || isNaN(ms) || ms <= 0) {
+    return "00:00:00";
+  }
 
+  const seconds = ms / 1000;
+
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = Math.floor(seconds % 60);
+
+  // 使用 padStart 补齐两位数
+  const displayH = String(h).padStart(2, '0');
+  const displayM = String(m).padStart(2, '0');
+  const displayS = String(s).padStart(2, '0');
+
+  return `${displayH}:${displayM}:${displayS}`;
+};
+</script>
 
 <style>
 .el-calendar-table .is-selected {
@@ -173,11 +210,9 @@ const isGoalAchieved = (day: string) => {
   /* 占满高度，根据需要调整 */
 }
 
-
 .progress {
   margin: 20px;
 }
-
 
 .goals {
   /*让子项居中*/
@@ -194,7 +229,6 @@ const isGoalAchieved = (day: string) => {
 https://github.com/yefengr/obsidian-daily-statistics/issues/7
 */
 
-
 /* Daily Statistics plugin tweaks */
 .el-calendar button:focus,
 .el-calendar button:hover,
@@ -202,12 +236,12 @@ https://github.com/yefengr/obsidian-daily-statistics/issues/7
   background: none;
   border: 0;
   box-shadow: none;
-  line-height: .7;
+  line-height: 0.7;
   padding: 0;
 }
 
 /* stylelint-disable-next-line */
-.el-calendar-day>.div-container>.flex-centered3,
+.el-calendar-day > .div-container > .flex-centered3,
 .el-button-group::after,
 .el-button-group::before {
   display: none;
@@ -220,10 +254,10 @@ https://github.com/yefengr/obsidian-daily-statistics/issues/7
 }
 
 .el-calendar-table .el-calendar-day {
-  height: 50px;
+  height: 60px;
 }
 
-.el-calendar-day>.div-container>.flex-centered {
+.el-calendar-day > .div-container > .flex-centered {
   font-weight: 600;
 }
 
@@ -238,24 +272,21 @@ https://github.com/yefengr/obsidian-daily-statistics/issues/7
 }
 
 /* stylelint-disable-next-line */
-.el-calendar-day>.div-container p {
+.el-calendar-day > .div-container p {
   font-size: 12px;
 }
 
-.el-calendar-day>.div-container {
+.el-calendar-day > .div-container {
   gap: 5px;
 }
 
 .goal-achieved {
-  color: #67C23A;
+  color: #67c23a;
   /* Element Plus 的成功绿色 */
 }
-
-
 
 /* 设置日历背景透明 */
 .el-calendar {
   background-color: transparent !important;
 }
-
 </style>

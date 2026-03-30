@@ -15,15 +15,20 @@ import { SampleSettingTab } from "@/ui/setting/SampleSettingTab";
 import i18n from "@/lang";
 import dayjs from "dayjs";
 
-
 /**
  * 插件核心类
  */
 export default class DailyStatisticsPlugin extends Plugin {
   settings!: DailyStatisticsSettings;
-  debouncedUpdate!: Debouncer<[contents: string | null, filepath: string], void>;
+  debouncedUpdateWordCount!: Debouncer<
+    [contents: string | null, filepath: string],
+    void
+  >;
+  debouncedUpdateEditTime!: Debouncer<[], void>;
   private statusBarItemEl!: HTMLElement;
   calendarView!: CalendarView;
+  private firstInputTime: dayjs.Dayjs | null = null;
+  private lastInputTime: dayjs.Dayjs | null = null;
 
   async onload() {
     await this.loadSettings();
@@ -32,11 +37,11 @@ export default class DailyStatisticsPlugin extends Plugin {
     const locale = i18n.global.locale.value;
     if (locale == "zh_cn") {
       dayjs.locale("zh-cn", {
-        weekStart: this.settings.weekStart
+        weekStart: this.settings.weekStart,
       });
     } else {
       dayjs.locale("en", {
-        weekStart: this.settings.weekStart
+        weekStart: this.settings.weekStart,
       });
     }
 
@@ -63,43 +68,56 @@ export default class DailyStatisticsPlugin extends Plugin {
           this.openForTheFirstTime();
         }, 500);
 
-
         // 检查文件的修改时间
         this.registerInterval(
           window.setInterval(() => {
-            DailyStatisticsDataManagerInstance.getFileModifiedTime().then((time) => {
-              if (time > DailyStatisticsDataManagerInstance.dataSynchronTime) {
-                console.log("loadStatisticsData, fileModifiedTime is " + time + ", dataSynchronTime is " + DailyStatisticsDataManagerInstance.dataSynchronTime);
-                DailyStatisticsDataManagerInstance.loadStatisticsData();
-
+            DailyStatisticsDataManagerInstance.getFileModifiedTime().then(
+              (time) => {
+                if (
+                  time > DailyStatisticsDataManagerInstance.dataSynchronTime
+                ) {
+                  console.log(
+                    "loadStatisticsData, fileModifiedTime is " +
+                      time +
+                      ", dataSynchronTime is " +
+                      DailyStatisticsDataManagerInstance.dataSynchronTime
+                  );
+                  DailyStatisticsDataManagerInstance.loadStatisticsData();
+                }
               }
-            });
+            );
           }, 1000)
         );
-
-
-
       })
       .catch((e) => {
         console.error("loadStatisticsData error", e);
       });
 
-    this.debouncedUpdate = debounce<[contents: string | null, filepath: string], void>(
+    this.debouncedUpdateWordCount = debounce<
+      [contents: string | null, filepath: string],
+      void
+    >(
       (contents: string | null, filepath: string) => {
-
         if (filepath == null || filepath == "") {
           console.warn("filepath is null or empty, not update");
           return;
         }
 
         // 排除文件夹
-        if (this.settings.excludeFolder != null && this.settings.excludeFolder != "" && this.settings.excludeFolder != "/") {
+        if (
+          this.settings.excludeFolder != null &&
+          this.settings.excludeFolder != "" &&
+          this.settings.excludeFolder != "/"
+        ) {
           // 支持多个文件夹排除，使用逗号分隔
-          const folders = this.settings.excludeFolder.split(',').map(folder => folder.trim()).filter(folder => folder !== "");
+          const folders = this.settings.excludeFolder
+            .split(",")
+            .map((folder) => folder.trim())
+            .filter((folder) => folder !== "");
 
           // 构建匹配多个文件夹的正则表达式
-          const folderPatterns = folders.map(folder => `^${folder}(/|$)`);
-          const excludePattern = new RegExp(folderPatterns.join('|'));
+          const folderPatterns = folders.map((folder) => `^${folder}(/|$)`);
+          const excludePattern = new RegExp(folderPatterns.join("|"));
 
           if (filepath.match(excludePattern)) {
             // console.log("排除文件夹，不统计数据: " + filepath);
@@ -113,11 +131,14 @@ export default class DailyStatisticsPlugin extends Plugin {
           this.settings.statisticsFolder != "/"
         ) {
           // 支持多个文件夹包含，使用逗号分隔
-          const folders = this.settings.statisticsFolder.split(',').map(folder => folder.trim()).filter(folder => folder !== "");
+          const folders = this.settings.statisticsFolder
+            .split(",")
+            .map((folder) => folder.trim())
+            .filter((folder) => folder !== "");
 
           // 构建匹配多个文件夹的正则表达式
-          const folderPatterns = folders.map(folder => `^${folder}(/|$)`);
-          const includePattern = new RegExp(folderPatterns.join('|'));
+          const folderPatterns = folders.map((folder) => `^${folder}(/|$)`);
+          const includePattern = new RegExp(folderPatterns.join("|"));
 
           if (!filepath.match(includePattern)) {
             // console.log("文件路径不匹配，不统计: " + filepath);
@@ -130,6 +151,27 @@ export default class DailyStatisticsPlugin extends Plugin {
       false
     );
 
+    this.debouncedUpdateEditTime = debounce<[], void>(
+      () => {
+        if (this.firstInputTime && this.lastInputTime) {
+          let durationMS = this.lastInputTime.diff(this.firstInputTime);
+          console.log(
+            "debouncedUpdateEditTime, durationMS is " + durationMS + " s"
+          );
+          // 最小为1秒，避免过短的编辑时间无法记录
+          if (durationMS < 1000) {
+            durationMS = 1000;
+          }
+          DailyStatisticsDataManagerInstance.updateEditDuration(durationMS);
+        }
+
+        this.firstInputTime = null;
+        this.lastInputTime = null;
+      },
+      5 * 1000, // TODO: add this to settings
+      true
+    );
+
     // 定时在的状态栏更新本日字数
     this.statusBarItemEl = this.addStatusBarItem();
     // statusBarItemEl.setText('Status Bar Text');
@@ -137,7 +179,22 @@ export default class DailyStatisticsPlugin extends Plugin {
       window.setInterval(() => {
         this.statusBarItemEl.setText(
           t("todaySWordCount") +
-          DailyStatisticsDataManagerInstance.currentWordCount
+            DailyStatisticsDataManagerInstance.currentWordCount
+        );
+        const seconds =
+          DailyStatisticsDataManagerInstance.currentEditDuration / 1000;
+        const h = Math.floor(seconds / 3600);
+        const m = Math.floor((seconds % 3600) / 60);
+        const s = Math.floor(seconds % 60);
+        const timestring =
+          String(h).padStart(2, "0") +
+          ":" +
+          String(m).padStart(2, "0") +
+          ":" +
+          String(s).padStart(2, "0");
+        this.statusBarItemEl.setText(
+          t("todaySDuration") + // todo add to localization
+            timestring
         );
       }, 1000)
     );
@@ -150,6 +207,16 @@ export default class DailyStatisticsPlugin extends Plugin {
     this.registerEvent(
       this.app.workspace.on("file-open", this.onFileOpen.bind(this))
     );
+
+    // this.registerDomEvent(document, "compositionupdate", this.onCompositionUpdate.bind(this));
+    this.registerDomEvent(document, "keydown", this.onKeyDown.bind(this));
+
+    // this.registerEvent(
+    //   this.app.workspace.on("window-open", (win, window) => {
+    //     // win 是 Obsidian 的渲染器，window 是原生的 DOM window
+    //     this.registerDomEvent(window.document, "compositionupdate", this.onCompositionUpdate.bind(this));
+    //   })
+    // );
 
     // This adds a settings tab so the user can configure various aspects of the plugin
     this.addSettingTab(new SampleSettingTab(this.app, this));
@@ -240,23 +307,43 @@ export default class DailyStatisticsPlugin extends Plugin {
     await this.saveData(data);
   }
 
+  private recordEditTime() {
+    const now = dayjs();
+    if (!this.firstInputTime) {
+      this.firstInputTime = now;
+    }
+    this.lastInputTime = now;
+    // console.log(this.firstInputTime, this.lastInputTime);
+  }
+
   // 在预览时更新统计字数
   onEditorChange(editor: Editor, info: MarkdownView | MarkdownFileInfo) {
     if (info instanceof MarkdownView) {
       const file = info.file;
       const contents = editor.getValue();
       if (file) {
-        this.debouncedUpdate(contents, file.path);
+        this.recordEditTime();
+        this.debouncedUpdateWordCount(contents, file.path);
+        this.debouncedUpdateEditTime();
       }
     } else {
       // console.log("onEditorChange, info is not MarkdownView");
     }
   }
 
+  onKeyDown(ev: KeyboardEvent) {
+    const info = this.app.workspace.getActiveViewOfType(MarkdownView);
+    if (info && info.file) {
+      this.recordEditTime();
+      this.debouncedUpdateEditTime();
+      console.log("onKeyDown", ev);
+    }
+  }
+
   // 当文件被打开时统计字数
   onFileOpen(file: TFile | null) {
     if (file && this.app.workspace.getActiveViewOfType(MarkdownView)) {
-      this.debouncedUpdate(null, file.path);
+      this.debouncedUpdateWordCount(null, file.path);
     }
   }
 }

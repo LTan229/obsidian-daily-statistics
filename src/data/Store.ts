@@ -4,7 +4,7 @@ import dayjs from "dayjs";
 import dayOfYear from "dayjs/plugin/dayOfYear";
 dayjs.extend(dayOfYear);
 
-import { DailyStatisticsDataManagerInstance } from "@/data/StatisticsDataManager";
+import { type DailyRecord, DailyStatisticsDataManagerInstance } from "@/data/StatisticsDataManager";
 
 interface StatisticsData {
   // // yyyy-mm
@@ -15,7 +15,7 @@ interface StatisticsData {
   // 周开始
   weekStart: number;
   // 每日统计
-  dayCounts: Record<string, number>;
+  dayCounts: Record<string, DailyRecord>;
   // 周计划
   weeklyPlan: Record<string, number>;
   
@@ -72,7 +72,7 @@ const store = createStore<StatisticsData>({
       const prevMonth = dayjs(state.currentMonth).subtract(1, "month").format("YYYY-MM");
       const nextMonth = dayjs(state.currentMonth).add(1, "month").format("YYYY-MM");
 
-      const monthData: Record<string, number> = {};
+      const monthData: Record<string, DailyRecord> = {};
       for (const date in state.dayCounts) {
         if (date.startsWith(state.currentMonth) || date.startsWith(prevMonth) || date.startsWith(nextMonth)) {
           monthData[date] = state.dayCounts[date];
@@ -184,7 +184,7 @@ const store = createStore<StatisticsData>({
       state.weekStart = weekStart;
     },
 
-    updateStatisticsData(state, dayCounts: Record<string, number>) {
+    updateStatisticsData(state, dayCounts: Record<string, DailyRecord>) {
       state.dayCounts = { ...dayCounts };
     },
 
@@ -205,12 +205,13 @@ const store = createStore<StatisticsData>({
     },
 
     // 更新每日字数
-    updateDayCounts(state, dayCounts: Record<string, number>) {
+    updateDayStats(state, dayCounts: Record<string, DailyRecord>) {
       // 获取dayCounts 第一个属性的名称
       const day = Object.keys(dayCounts)[0];
       // 如果修改的时间是当前日期，需要单独做处理，记录在已有字数基础上，变更的数字
       if (dayjs(day).isSame(dayjs(), "day")) {
-        DailyStatisticsDataManagerInstance.updateCurrentWordCount(dayCounts[day]);
+        DailyStatisticsDataManagerInstance.updateCurrentWordCount(dayCounts[day].wordCount);
+        DailyStatisticsDataManagerInstance.updateEditDuration(dayCounts[day].editDuration);
       }
 
       const assign = Object.assign(

@@ -49,7 +49,7 @@ const targetWordContOfMonth = computed(() => {
 
 // 每日进度
 const dayProgress = computed(() => {
-  const dayCount = threeMonthsData.value[store.getters.currentDay] || 0;
+  const dayCount = threeMonthsData.value[store.getters.currentDay].wordCount || 0;
   if (dayCount <= 0 || targetWordContOfDay.value == 0) {
     return 0;
   }
@@ -66,7 +66,7 @@ const weekProgress = computed(() => {
   const weekCount = Object.keys(threeMonthsData.value).reduce((acc, key) => {
     const date = dayjs(key);
     if (date.isBetween(weekStart, weekEnd, "day", "[]")) {
-      acc += threeMonthsData.value[key] || 0;
+      acc += threeMonthsData.value[key].wordCount || 0;
     }
     return acc;
   }, 0);
@@ -85,7 +85,7 @@ const monthProgress = computed(() => {
   const monthCount = Object.keys(threeMonthsData.value).reduce((acc, key) => {
     const date = dayjs(key);
     if (date.isSame(today, "month")) {
-      acc += threeMonthsData.value[key] || 0;
+      acc += threeMonthsData.value[key].wordCount || 0;
     }
     return acc;
   }, 0);

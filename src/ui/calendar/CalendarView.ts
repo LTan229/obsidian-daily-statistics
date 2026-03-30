@@ -6,7 +6,8 @@ import {
   DailyStatisticsData,
   DailyStatisticsDataManagerInstance,
   type DailyStatisticsDataSaveListener,
-  type DailyStatisticsDataSyncListener
+  type DailyStatisticsDataSyncListener,
+  type DailyStatisticsInputListener,
 } from "@/data/StatisticsDataManager";
 import zhCn from "element-plus/es/locale/lang/zh-cn";
 import dayjs from "dayjs";
@@ -19,7 +20,6 @@ import VueIndex from "@/ui/calendar/VueIndex.vue";
 export const Calendar_View = "CalendarView";
 
 export class CalendarView extends ItemView {
-
   _vueApp: VueApp | undefined;
   intervalId: number | null = null;
 
@@ -42,32 +42,46 @@ export class CalendarView extends ItemView {
     return "calendar-with-checkmark";
   }
 
+  dailyStatisticsDataSaveListenerImpl =
+    new (class DailyStatisticsDataSaveListenerImpl
+      implements DailyStatisticsDataSaveListener
+    {
+      onSave(data: DailyStatisticsData): void {
+        store.commit("updateStatisticsData", data.dayCounts);
+      }
 
-  dailyStatisticsDataSaveListenerImpl = new class DailyStatisticsDataSaveListenerImpl
-    implements DailyStatisticsDataSaveListener {
-    onSave(data: DailyStatisticsData): void {
+      getListenerId(): string {
+        return "DailyStatisticsDataSaveListenerImpl-CalendarView";
+      }
+    })();
+
+  dailyStatisticsDataSyncListenerImpl =
+    new (class DailyStatisticsDataSyncListenerImpl
+      implements DailyStatisticsDataSyncListener
+    {
+      onSync(data: DailyStatisticsData): void {
+        store.commit("updateStatisticsData", data.dayCounts);
+        store.commit("updateWeeklyPlan", data.weeklyPlan);
+      }
+
+      getListenerId(): string {
+        return "DailyStatisticsDataSyncListenerImpl-CalendarView";
+      }
+    })();
+
+  dailyStatisticsInputListenerImpl = new (class DailyStatisticsInputListenerImpl
+    implements DailyStatisticsInputListener
+  {
+    onInput(data: DailyStatisticsData): void {
       store.commit("updateStatisticsData", data.dayCounts);
     }
 
     getListenerId(): string {
-      return "DailyStatisticsDataSaveListenerImpl-CalendarView";
+      return "DailyStatisticsInputListenerImpl-CalendarView";
     }
-  };
-
-  dailyStatisticsDataSyncListenerImpl = new class DailyStatisticsDataSyncListenerImpl
-    implements DailyStatisticsDataSyncListener {
-    onSync(data: DailyStatisticsData): void {
-      store.commit("updateStatisticsData", data.dayCounts);
-      store.commit("updateWeeklyPlan", data.weeklyPlan);
-    }
-
-    getListenerId(): string {
-      return "DailyStatisticsDataSyncListenerImpl-CalendarView";
-    }
-  };
+  })();
 
   async onOpen() {
-
     const enablePlan = this.plugin.settings.enablePlan;
     store.commit("updateEnablePlan", enablePlan);
     store.commit("updateWeekStart", this.plugin.settings.weekStart);
@@ -75,22 +89,25 @@ export class CalendarView extends ItemView {
     const locale = i18n.global.locale.value;
     if (locale == "zh_cn") {
       dayjs.locale("zh-cn", {
-        weekStart: this.plugin.settings.weekStart
+        weekStart: this.plugin.settings.weekStart,
       });
     } else {
       dayjs.locale("en", {
-        weekStart: this.plugin.settings.weekStart
+        weekStart: this.plugin.settings.weekStart,
       });
     }
-
 
     // 初始化数据
     const yearMon = dayjs().format("YYYY-MM");
     store.commit("updateMonth", yearMon);
-    store.commit("updateStatisticsData", DailyStatisticsDataManagerInstance.data.dayCounts);
-    store.commit("updateWeeklyPlan", DailyStatisticsDataManagerInstance.data.weeklyPlan);
-
-  
+    store.commit(
+      "updateStatisticsData",
+      DailyStatisticsDataManagerInstance.data.dayCounts
+    );
+    store.commit(
+      "updateWeeklyPlan",
+      DailyStatisticsDataManagerInstance.data.weeklyPlan
+    );
 
     // 创建并挂在组件
     const _app = createApp(VueIndex);
@@ -98,15 +115,21 @@ export class CalendarView extends ItemView {
     _app.use(store);
     _app.use(i18n);
     _app.use(ElementPlus, {
-      locale: locale == "zh_cn" ? zhCn : en
+      locale: locale == "zh_cn" ? zhCn : en,
     });
     _app.mount(this.containerEl);
     this._vueApp = _app;
 
-
     // 当有数据更新时，更新日历视图
-    DailyStatisticsDataManagerInstance.addDataSaveListener(this.dailyStatisticsDataSaveListenerImpl);
-    DailyStatisticsDataManagerInstance.addDataSyncListener(this.dailyStatisticsDataSyncListenerImpl);
+    DailyStatisticsDataManagerInstance.addDataSaveListener(
+      this.dailyStatisticsDataSaveListenerImpl
+    );
+    DailyStatisticsDataManagerInstance.addDataSyncListener(
+      this.dailyStatisticsDataSyncListenerImpl
+    );
+    DailyStatisticsDataManagerInstance.addInputListener(
+      this.dailyStatisticsInputListenerImpl
+    );
 
     const today = dayjs().format("YYYY-MM-DD");
     this.intervalId = setInterval(() => {
@@ -118,13 +141,7 @@ export class CalendarView extends ItemView {
         this.onOpen();
       }
     }, 1000 * 60 * 60);
-
-
-  
   }
-
-  
-
 
   async onClose() {
     // // // console.log("CalendarView onClose");
@@ -133,14 +150,12 @@ export class CalendarView extends ItemView {
     }
     this.containerEl.empty();
 
-    DailyStatisticsDataManagerInstance.removeDataSaveListener(this.dailyStatisticsDataSaveListenerImpl);
+    DailyStatisticsDataManagerInstance.removeDataSaveListener(
+      this.dailyStatisticsDataSaveListenerImpl
+    );
     if (this.intervalId) {
       clearInterval(this.intervalId);
       this.intervalId = null; // 重置定时器 ID
     }
-
   }
-
 }
-
-
